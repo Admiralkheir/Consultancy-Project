@@ -1,0 +1,88 @@
+﻿@model IEnumerable<Features>
+@{
+    ViewBag.Title = "FeaturesList";
+    Layout = "~/Areas/Admin/Views/Shared/_ AdminLayout.cshtml";
+}
+
+<h2>FeaturesList</h2>
+
+<div class="container">
+    <div class="table-responsive-vertical">
+        <table class="table table-bordered table-striped table-hover table-mc-light-blue">
+            <thead>
+                <tr>
+                    <th>Genel Açıklama</th>
+                    <th>Açıklama</th>
+                    <th>Başlık</th>
+                    @*<th>Resim Yolu</th>*@
+                    <th>Sil / Güncelle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*<tr>
+                    <td data-title="No">1</td>
+                    <td data-title="Açıklama">Kral</td>
+                    <td data-title="Başlık">Adam Kral</td>
+                    <td data-title="Resim Yolu">gjhmabj</td>
+                    <td data-title="Sil / Güncelle">fffff</td>
+                </tr>*@
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-title="Genel Açıklama">@item.GeneralDescription</td>
+                        <td data-title="Tanım">@item.Description</td>
+                        <td data-title="Başlık">@item.Title</td>
+                        <td data-title="Sil / Güncelle">@Html.ActionLink("Sil", "FeaturesDelete", new { id = item.FeaturesID }, new { @class = "btn btn-danger e" }) &nbsp; @Html.ActionLink("Güncelle", "FeaturesUpdate", new { id = item.FeaturesID }, new { @class = "btn btn-warning   " })</td>
+                    </tr>
+                }
+                @*<tr>
+            <td data-title="No"></td>
+            <td data-title="Açıklama"></td>
+            <td data-title="Başlık"></td>
+            <td data-title="Resim Yolu"></td>
+            <td data-title="Sil / Güncelle"></td>
+        </tr>
+        <tr>
+            <td data-title="No"></td>
+            <td data-title="Açıklama"></td>
+            <td data-title="Başlık"></td>
+            <td data-title="Resim Yolu"></td>
+            <td data-title="Sil / Güncelle"></td>
+        </tr>
+        <tr>
+            <td data-title="No"></td>
+            <td data-title="Açıklama"></td>
+            <td data-title="Başlık"></td>
+            <td data-title="Resim Yolu"></td>
+            <td data-title="Sil / Güncelle"></td>
+        </tr>
+        <tr>
+            <td data-title="No"></td>
+            <td data-title="Açıklama"></td>
+            <td data-title="Başlık"></td>
+            <td data-title="Resim Yolu"></td>
+            <td data-title="Sil / Güncelle"></td>
+        </tr>*@
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@*<table class="table">
+    <tr>
+        <th>Genel Açıklama</th>
+        <th>Açıklama</th>
+        <th>Başlık</th>
+        <th>Sil / Güncelle</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.GeneralDescription</td>
+            <td>@item.Description</td>
+            <td>@item.Title</td>
+            <td>@Html.ActionLink("Sil", "FeaturesDelete", new { id = item.FeaturesID }, new { @class = "btn btn-danger glyphicon glyphicon-remove" }) &nbsp; @Html.ActionLink("Güncelle", "FeaturesUpdate", new { id = item.FeaturesID }, new { @class = "btn btn-warning  glyphicon glyphicon-user " })</td>
+        </tr>
+    }
+
+</table>*@

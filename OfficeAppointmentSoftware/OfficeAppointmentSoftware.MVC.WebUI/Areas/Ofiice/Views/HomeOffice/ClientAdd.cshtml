@@ -1,0 +1,203 @@
+﻿@model ClientVM
+@{
+    ViewBag.Title = "ClientAdd";
+}
+
+
+<div class="row">
+    <i class="fas fa-list-ul fa-2x col-md-1"></i>
+    <h3 style="color:#4e73df" class="col-md-3"> Danışan Ekle </h3>
+
+
+    <div class="col-md-5"></div>
+    <div class="md-form mt-0 col-md-3">
+
+    </div>
+
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12 mt-2">
+        @using (Html.BeginForm("ClientAdd", "HomeOffice", FormMethod.Post, new { @role = "form", @enctype = "multipart/form-data" }))
+        {
+            <div class="form-body">
+                <div class="portlet-body form">
+                    <!-- BEGIN FORM-->
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Ad *  </label>:
+                            <div class="col-md-5">
+                                @Html.TextBoxFor(x => x.Client.Name, new { @class = "form-control", type = "text", placeholder = "Danışan Adı Giriniz" })
+
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Soyad *</label>:
+                            <div class="col-md-5">
+                                @Html.TextBoxFor(x => x.Client.Surname, new { @class = "form-control", type = "text", placeholder = "Danışan Soyadı Giriniz" })
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Tc Kimlik *</label>:
+                            <div class="col-md-5">
+                                @Html.TextBoxFor(x => x.Client.TcKimlik, new { @class = "form-control", type = "text", placeholder = "12345678900" , maxlength="11" })
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Doğum Tarihi *</label>:
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(x => x.Client.BirthDate, new {
+                               type = "date" , name = "book_date" , id = "book_date" ,
+           onchange = "console.log(this.value)", @class = "form -control" })
+
+                            </div>
+                            <div class="col-md-6"></div>
+                        </div>
+
+                    </div>
+
+
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Problem</label>:
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(x => x.Client.Problem, new { @class = "form-control summernote", placeholder = "Problemi giriniz" })
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Not </label>:
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(x => x.Client.Note, new { @class = "form-control", type = "text", placeholder = "Not Giriniz", height = "150px" })
+
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Email Adres </label>:
+                            <div class="col-md-5">
+
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-envelope"></i>
+                                    </span>
+                                    @Html.TextBoxFor(x => x.Contact.Email, new { type = "text", @class = "form-control", placeholder = "Mail Giriniz" })
+                                </div>
+
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Telefon Numarası *</label>:
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-phone" aria-hidden="true"></i>
+                                    </span>
+
+                                    @Html.TextBoxFor(x => x.Contact.PhoneNumber1, new { type = "text", @class = "form-control", placeholder = "05999911122" })
+
+                                </div>
+                                <div class="col-md-5"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">İkincil Telefon Numarası </label>:
+
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-phone" aria-hidden="true"></i>
+                                    </span>
+                                    @Html.TextBoxFor(x => x.Contact.PhoneNumber2, new { type = "text", @class = "form-control", placeholder = "05999911122" })
+                                </div>
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Adres </label>:
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(x => x.Contact.Address, new { @class = "form-control", type = "text", placeholder = "Adres Giriniz", height = "150px" })
+
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- #endregion -->
+
+                    <div class="form-group ">
+                        <div class="row">
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-8">
+                                <button type="submit" class="btn btn-success" id="btnadd">Danışan Ekle</button>
+                                <button type="button" class="btn btn-danger">İptal</button>
+                            </div>
+                        </div>
+                    </div>
+                  
+                </div>
+            </div>
+            <!-- END FORM-->
+        }
+    </div>
+
+</div>
+@section Scripts {
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 150
+
+            });
+
+        });
+</script>
+
+    }
+
+  @if (ViewBag.Message != null)
+   {
+    <script type="text/javascript">
+            window.onload = function () {
+                confirm("@ViewBag.Message");
+            };
+    </script>
+
+   }

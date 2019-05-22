@@ -1,0 +1,174 @@
+﻿@model ClientExpertVM
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Ofiice/Views/Shared/_OfficeLayoutPage.cshtml";
+}
+
+<nav class="navbar navbar-expand topbar ">
+
+    <!-- Page Heading -->
+    <div class="row">
+
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4 col-md-12">
+            <h1 class="h3 mb-0 text-gray-800">@Model.Company.CompanyName</h1>
+            @*<a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>*@
+
+
+            <div>
+                <!-- Nav Item - Messages -->
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell fa-fw"></i>
+                            <!-- Counter - Messages -->
+                            @{if (Model.AppsTotalDaily.Count() != 0)
+                                {
+                                    <span class="badge badge-danger badge-counter">@Model.AppsTotalDaily.Count()</span>
+                                }
+                            }
+                        </a>
+                        <!-- Dropdown - Messages -->
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="messagesDropdown">
+                            <h6 class="dropdown-header">
+                                Günün Randevuları
+                            </h6>
+                            @foreach (var item in Model.AppsTotalDaily)
+                            {
+                                <a class="dropdown-item d-flex align-items-center" href="@Url.Action("AppointmentOpss", "HomeOffice")" onclick="return confirm('Randevu işlemleri sayfasına yönlendiriliyorsunuz. Bu sayfadan ayrılmak istediğinize emin misiniz? ');">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="~/Content/img/Capture.JPG" />
+                                        <div class="status-indicator bg-danger"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-uppercase">@item.Subject</div>
+                                        <div class="small text-black-300">
+
+                                            @{if (item.EndTime== null)
+                                                {
+                                                    @Html.Raw("Tüm Gün Aktivitesi")
+                                                }
+                                                else
+                                                {
+                                                    @Html.Raw("Başlangıç: ")@item.StartTime.TimeOfDay;
+                                                    @Html.Raw(" Bitiş: ")@item.EndTime.Value.TimeOfDay;
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+
+                            <a class="dropdown-item text-center small text-gray-500" href="@Url.Action("AppointmentOpss", "HomeOffice")" onclick="return confirm('Randevu işlemleri sayfasına yönlendiriliyorsunuz. Bu sayfadan ayrılmak istediğinize emin misiniz? ')">Takvimi Görüntüle</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-0">
+
+
+        </div>
+    </div>
+
+</nav>
+
+<!-- Content Row -->
+<div class="row">
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-4 col-md-3 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">AKTİF DANIŞAN SAYISI</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ClientTotal.ToString()</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-black-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">AKTİF UZMAN SAYISI</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ExpertsTotal.ToString()</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-tie fa-2x text-black-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">HAFTALIK RANDEVU YÜZDESİ</div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">%@Model.AppsPercent</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: @Model.AppsPercent%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-percent fa-2x text-black-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+
+    <!-- Content Column -->
+    <div class="col-lg-12 mb-4">
+
+        <!-- Project Card Example -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danışan Dağılımları</h6>
+            </div>
+            <div class="card-body">
+                <h4 class="small font-weight-bold">Çocuk(3-12 yaş) <span class="float-right">@Model.Kid2%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: @Model.Kid2%" aria-valuenow=@Model.Kid2 aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <h4 class="small font-weight-bold">Ergen(12-18 yaş) <span class="float-right">@Model.Young%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar" role="progressbar" style="width: @Model.Young%" aria-valuenow=@Model.Young aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <h4 class="small font-weight-bold">Yetişkin(18 yaş ve üstü) <span class="float-right">@Model.Adult%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: @Model.Adult%" aria-valuenow=@Model.Adult aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <h4 class="small font-weight-bold">Yaşlı(40 yaş ve üstü) <span class="float-right">@Model.Old%</span></h4>
+                <div class="progress">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: @Model.Old%" aria-valuenow=@Model.Old aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

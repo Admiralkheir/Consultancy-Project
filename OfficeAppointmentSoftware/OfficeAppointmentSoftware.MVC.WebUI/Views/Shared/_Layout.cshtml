@@ -1,0 +1,118 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @*<title>Baker Bootstrap Theme</title>*@
+    <meta name="description" content="Free Bootstrap Theme by BootstrapMade.com">
+    <meta name="keywords" content="free website templates, free bootstrap themes, free template, free bootstrap, free website template">
+
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:400,300|Raleway:300,400,900,700italic,700,300,600">
+    @*<link href="~/Content/PricingList.css" rel="stylesheet"/>*@
+    <link rel="stylesheet" type="text/css" href="~/Content/css/jquery.bxslider.css">
+    <link rel="stylesheet" type="text/css" href="~/Content/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Content/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Content/css/animate.css">
+    <link href="~/Content/css/PricingList.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="~/Content/css/style.css">
+
+    @*<link href="~/Content2/css/bootstrap.min.css" rel="stylesheet" />"">*@
+    <link href="~/Content2/css/mdb.min.css" rel="stylesheet" />
+    <!-- =======================================================
+      Theme Name: Baker
+      Theme URL: https://bootstrapmade.com/baker-free-onepage-bootstrap-theme/
+      Author: BootstrapMade.com
+      Author URL: https://bootstrapmade.com
+    ======================================================= -->
+    @*<title>_Layout</title>*@
+</head>
+<body>
+    <div class="header">
+        <div class="bg-color">
+            <header id="main-header">
+                <nav class="navbar navbar-default navbar-fixed-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand" href="#">CET<span class="logo-dec">RİS</span></a>
+                        </div>
+                        <div class="collapse navbar-collapse" id="myNavbar">
+                            <ul class="nav navbar-nav navbar-right">
+                                <li class="active"><a href="#main-header">ANA SAYFA</a></li>
+                                <li class=""><a href="#feature">HAKKIMIZDA</a></li>
+                                <li class=""><a href="#service">ÖZELLİKLER</a></li>
+                                <li class=""><a href="#portfolio">MÜŞTERİLER</a></li>
+                                <li class=""><a href="#pricing-list">FİYATLAR</a></li>
+                                <li class=""><a href="#testimonial">TAKIM</a></li>
+                                <li class=""><a href="#contact">İLETİŞİM</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+            <div class="wrapper">
+                <div class="container">
+                    <div class="row">
+                        <div class="banner-info text-center wow fadeIn delay-05s">
+                            @*<h1 class="bnr-title">We are at ba<span>ker</span></h1>*@
+                            <h2 class="bnr-sub-title">@TempData["BannerTitle"]</h2>
+                            <p class="bnr-para">@TempData["BannerD"]</p>
+                                <a href="/Account/Login" class="btn btn-more active">Giriş Yap</a>
+                                <a href="#contact" class="btn btn-more active">Bize Ulaşın</a>
+                            </div>
+                            <div class="overlay-detail">
+                                <a href="#feature"><i class="fa fa-angle-down"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div>
+        @RenderBody()
+    </div>
+    <footer id="footer">
+        <div class="container">
+            <div class="row text-center">
+                <p> CETRİS. Tüm Hakları Saklıdır. 2019&copy;</p>
+                <div class="credits">
+                    <!--
+                      All the links in the footer should remain intact.
+                      You can delete the links only if you purchased the pro version.
+                      Licensing information: https://bootstrapmade.com/license/
+                      Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Baker
+                    -->
+                     <a href="https://bootstrapmade.com/">Grup Fişek </a> Tarafından tasarlanmıştır.<br /><br />
+                    <div class="social-links">
+                        <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+                        <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+                        <a href="#" class="google-plus"><i class="fa fa-google-plus"></i></a>
+                        <a href="#" class="pinterest"><i class="fa fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!---->
+    <script src="~/Content/js/jquery.min.js"></script>
+    <script src="~/Content/js/jquery.easing.min.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Content/js/wow.js"></script>
+    <script src="~/Content/js/jquery.bxslider.min.js"></script>
+    <script src="~/Content/js/custom.js"></script>
+    @*<script src="~/Content/contactform/contactform.js"></script>*@
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

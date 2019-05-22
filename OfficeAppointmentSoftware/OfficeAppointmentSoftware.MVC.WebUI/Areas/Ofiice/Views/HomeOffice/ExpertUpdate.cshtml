@@ -1,0 +1,217 @@
+﻿@model ExpertVM
+@{
+    ViewBag.Title = "ExpertUpdate";
+}
+
+<div class="row">
+    <i class="fas fa-pen fa-2x col-md-1"></i>
+    <h3 style="color:#4e73df" class="col-md-3"> Uzman Güncelleme </h3>
+
+
+    <div class="col-md-5"></div>
+    <div class="md-form mt-0 col-md-3">
+
+    </div>
+
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12 mt-2">
+        @using (Html.BeginForm("ExpertUpdate", "HomeOffice", new { @role = "form", @enctype = "multipart/form-data" }))
+        {
+            <div class="form-body">
+                <div class="portlet-body form">
+                    @Html.HiddenFor(x => x.Expert.ExpertID)
+                    @Html.HiddenFor(x => x.Expert.CompanyID)
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label">Fotoğraf</label>:
+                            <div class="col-md-8">
+                                <input type="file" name="file">
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- BEGIN FORM-->
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Ad *</label>:
+                            <div class="col-md-5">
+                                @Html.TextBoxFor(x => x.Expert.Name, new { @class = "form-control", type = "text", placeholder = "Uzman Adı Giriniz" })
+
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Soyad *</label>:
+                            <div class="col-md-5">
+                                @Html.TextBoxFor(x => x.Expert.Surname, new { @class = "form-control", type = "text", placeholder = "Uzman Soyadı Giriniz" })
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Doğum Tarihi *</label>:
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(x => x.Expert.BirthDate, new
+                           {
+                               type = "date-local",
+                               @class="form-control"
+                           })
+
+                            </div>
+                            <div class="col-md-6"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Uzmanlık *</label>:
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-user-tie"></i>
+                                    </span>
+
+                                    @Html.TextBoxFor(x => x.Expert.Profession, new { type = "text", @class = "form-control", placeholder = "Uzmanlık Alanı Giriniz" })
+                                </div>
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Fiyat Politikası *</label>:
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(x => x.Expert.WagePolicy, new { @class = "form-control summernote", placeholder = "Fiyat Politakası" })
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Not </label>:
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(x => x.Expert.Note, new { @class = "form-control", type = "text", placeholder = "Not Giriniz", height = "150px" })
+
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Email Adres </label>:
+                            <div class="col-md-5">
+
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-envelope"></i>
+                                    </span>
+                                    @Html.TextBoxFor(x => x.Contact.Email, new { type = "text", @class = "form-control", placeholder = "Mail Giriniz" })
+                                </div>
+
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Telefon Numarası *</label>:
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-phone" aria-hidden="true"></i>
+                                    </span>
+
+                                    @Html.TextBoxFor(x => x.Contact.PhoneNumber1, new { type = "text", @class = "form-control", placeholder = "05999911122" })
+
+                                </div>
+                                <div class="col-md-5"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">İkincil Telefon Numarası </label>:
+
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-phone" aria-hidden="true"></i>
+                                    </span>
+                                    @Html.TextBoxFor(x => x.Contact.PhoneNumber2, new { type = "text", @class = "form-control", placeholder = "05999911122" })
+                                </div>
+                            </div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2 control-label clearfix">Adres </label>:
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(x => x.Contact.Address, new { @class = "form-control", type = "text", placeholder = "Adres Giriniz", height = "150px" })
+
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </div>
+
+
+                    <!-- #endregion -->
+
+                    <div class="form-group ">
+                        <div class="row">
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-8">
+                                <button type="submit" class="btn btn-primary">Uzman Güncelle</button>
+                                @Html.ActionLink("İptal", "ListExpertInfos", "HomeOffice", new { @class = "btn btn-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END FORM-->
+                </div>
+            </div>
+
+        }
+
+    </div>
+</div>
+
+
+@section scripts {
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 150
+
+            })
+
+        })
+
+
+    </script>
+
+}

@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F592B438-DFE6-4DA4-B902-2E40D723A0C9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OfficeAppointmentSoftware.DAL</RootNamespace>
+    <AssemblyName>OfficeAppointmentSoftware.DAL</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServerCompact, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.SqlServerCompact.6.2.0\lib\net45\EntityFramework.SqlServerCompact.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Compact.4.0.8876.1\lib\net40\System.Data.SqlServerCe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class1.cs" />
+    <Compile Include="Contexts\AppointmentDBContext.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\Abstracts\AdminRepositories\IBannerRepository.cs" />
+    <Compile Include="Repositories\Abstracts\AdminRepositories\ICompanyRepository.cs" />
+    <Compile Include="Repositories\Abstracts\AdminRepositories\IFeaturesRepository.cs" />
+    <Compile Include="Repositories\Abstracts\AdminRepositories\IPlanRepository.cs" />
+    <Compile Include="Repositories\Abstracts\AdminRepositories\IWorksRepository.cs" />
+    <Compile Include="Repositories\Abstracts\Core\IBaseRepository.cs" />
+    <Compile Include="Repositories\Abstracts\IClientRepository.cs" />
+    <Compile Include="Repositories\Abstracts\IContactRepository.cs" />
+    <Compile Include="Repositories\Abstracts\IExpertRepository.cs" />
+    <Compile Include="Repositories\Concretes\AdminRepositories\BannerRepository.cs" />
+    <Compile Include="Repositories\Concretes\AdminRepositories\CompanyRepository.cs" />
+    <Compile Include="Repositories\Concretes\AdminRepositories\FeaturesRepository.cs" />
+    <Compile Include="Repositories\Concretes\AdminRepositories\PlanRepository.cs" />
+    <Compile Include="Repositories\Concretes\AdminRepositories\WorksRepository.cs" />
+    <Compile Include="Repositories\Concretes\ClientRepository.cs" />
+    <Compile Include="Repositories\Concretes\ContactRepository.cs" />
+    <Compile Include="Repositories\Concretes\Core\BaseRepository.cs" />
+    <Compile Include="Repositories\Concretes\ExpertRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OfficeAppointmentSoftware.Entities\OfficeAppointmentSoftware.Entities.csproj">
+      <Project>{5d7429eb-8359-4bf9-a8a8-6bf5698a22d2}</Project>
+      <Name>OfficeAppointmentSoftware.Entities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="bin\Debug\amd64\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
+    <None Include="bin\Debug\OfficeAppointmentSoftware.DAL.dll.config" />
+    <None Include="bin\Debug\OfficeAppointmentSoftware.Entities.dll.config" />
+    <None Include="bin\Debug\x86\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
+    <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <None Include="obj\Debug\OfficeAppointmentSoftware.DAL.csproj.CopyComplete" />
+    <None Include="obj\Debug\OfficeAppointmentSoftware.DAL.csproj.CoreCompileInputs.cache" />
+    <None Include="obj\Debug\OfficeAppointmentSoftware.DAL.csprojAssemblyReference.cache" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\amd64\Microsoft.VC90.CRT\msvcr90.dll" />
+    <Content Include="bin\Debug\amd64\Microsoft.VC90.CRT\README_ENU.txt" />
+    <Content Include="bin\Debug\amd64\sqlceca40.dll" />
+    <Content Include="bin\Debug\amd64\sqlcecompact40.dll" />
+    <Content Include="bin\Debug\amd64\sqlceer40EN.dll" />
+    <Content Include="bin\Debug\amd64\sqlceme40.dll" />
+    <Content Include="bin\Debug\amd64\sqlceqp40.dll" />
+    <Content Include="bin\Debug\amd64\sqlcese40.dll" />
+    <Content Include="bin\Debug\EntityFramework.dll" />
+    <Content Include="bin\Debug\EntityFramework.SqlServer.dll" />
+    <Content Include="bin\Debug\EntityFramework.SqlServer.xml" />
+    <Content Include="bin\Debug\EntityFramework.SqlServerCompact.dll" />
+    <Content Include="bin\Debug\EntityFramework.SqlServerCompact.xml" />
+    <Content Include="bin\Debug\EntityFramework.xml" />
+    <Content Include="bin\Debug\OfficeAppointmentSoftware.DAL.dll" />
+    <Content Include="bin\Debug\OfficeAppointmentSoftware.DAL.pdb" />
+    <Content Include="bin\Debug\OfficeAppointmentSoftware.Entities.dll" />
+    <Content Include="bin\Debug\OfficeAppointmentSoftware.Entities.pdb" />
+    <Content Include="bin\Debug\System.Data.SqlServerCe.dll" />
+    <Content Include="bin\Debug\x86\Microsoft.VC90.CRT\msvcr90.dll" />
+    <Content Include="bin\Debug\x86\Microsoft.VC90.CRT\README_ENU.txt" />
+    <Content Include="bin\Debug\x86\sqlceca40.dll" />
+    <Content Include="bin\Debug\x86\sqlcecompact40.dll" />
+    <Content Include="bin\Debug\x86\sqlceer40EN.dll" />
+    <Content Include="bin\Debug\x86\sqlceme40.dll" />
+    <Content Include="bin\Debug\x86\sqlceqp40.dll" />
+    <Content Include="bin\Debug\x86\sqlcese40.dll" />
+    <Content Include="obj\Debug\OfficeAppointmentSoftware.DAL.csproj.FileListAbsolute.txt" />
+    <Content Include="obj\Debug\OfficeAppointmentSoftware.DAL.dll" />
+    <Content Include="obj\Debug\OfficeAppointmentSoftware.DAL.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj\Debug\TempPE\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
+    xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
+    if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
+    xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

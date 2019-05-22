@@ -1,0 +1,109 @@
+﻿@model IEnumerable<OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Models.ExpertInfosDTO>
+
+@{
+    ViewBag.Title = "ListExpertInfos";
+}
+
+<div class="row">
+    <i class="fas fa-list-ul fa-2x col-md-1"></i>
+    <h3 style="color:#4e73df" class="col-md-3"> Uzman Listesi </h3>
+
+
+    <div class="col-md-5"></div>
+    <div class="md-form mt-0 col-md-3">
+        <input class="form-control" id="searchInput" onkeyup="myFunction()" type="text" placeholder="Search" aria-label="Search">
+
+    </div>
+
+</div>
+
+<hr />
+
+
+<div class="row">
+    <div class="col col-md-9">
+    </div>
+    <div class="col col-md-1">
+    </div>
+    <div class="col-md-2">
+        <a href="@Url.Action("ExpertAdd","HomeOffice")"><button type="button" class="btn btn-success" style="float:left; width:142px"><i class="fas fa-plus"></i> Yeni Uzman</button> </a>
+
+    </div>
+</div>
+<br />
+<table id="myTable" class="table table-striped">
+    <tr>
+        <th>
+            @Html.Label("Uzmanlık Alanı")
+        </th>
+        <th>
+            @Html.Label("Ad Soyad")
+        </th>
+        @*<th>
+                @Html.Label("Soyad")
+            </th>*@
+        <th>
+            @Html.Label("Telefon Numarası")
+        </th>
+
+        <th>
+            @Html.Label("Tanımlanan Notlar")
+        </th>
+
+        <th>
+            @Html.Label(" İşlemler")
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Uzmanlik)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AdSoyad)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.Soyad)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.Telno)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.Not)
+            </td>
+            <td>
+                @Html.ActionLink("Güncelle", "ExpertUpdate", "HomeOffice", new { id = item.ID }, new { @class = "btn btn-warning glyphicon glyphicon-user" })
+                @Html.ActionLink("Sil", "ExpertDelete", "HomeOffice", new { id = item.ID }, new { @class = "btn btn-danger glyphicon glyphicon-remove", onclick = "return confirm('Bu uzmanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.');" })
+            </td>
+        </tr>
+    }
+
+</table>
+<script>
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+
+        }
+    }
+</script>

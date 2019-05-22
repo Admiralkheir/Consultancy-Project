@@ -1,0 +1,374 @@
+﻿@model UserContact
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<body>
+    <div class="loader"></div>
+    <div id="myDiv">
+        <!--HEADER-->
+        <section id="feature" class="section-padding wow fadeIn delay-02s">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="wrap-item text-center">
+                            <div class="item-img">
+                                <img src="~/Content/img/ser01.png">
+                            </div>
+                            <h3 class="pad-bt15">Misyon</h3>
+                            <p>
+                                @*Misyonumuz seçkin çalışnalarıyla iş mükemmeliyetini hedefleyen, müşterilerine refakatçi, güvenilir, yüksek kaliteli, uygun fiyatlı çözümler sunan bir şirket olmak.*@ CETRİS, web dünyasındaki verdiği hizmetlerde öncelikle kalite iş prensibi ile müşterilerine ilk aşamadan son aşamaya kadar çözüm ve destek stratejisi ile çalışmaktadır. Sürekli en yeni, en güvenli, en pratik teknolojileri sistemine katma ve hizmetlerine entegre etme çabası içinde olan firmamız güvenilir ve yenilikçi hizmet anlayışını benimsemiştir.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="wrap-item text-center">
+                        <div class="item-img">
+                            <img src="~/Content/img/ser02.png">
+                        </div>
+                        <h3 class="pad-bt15">Vizyon</h3>
+                        <p>CETRİS, verdiği hizmetlerde her daim güvenilir ve karşı tarafın ihtiyaç durumuna göre çözüm skalasını genişletme amacı içinde olacaktır. Verilen hizmet ne olursa olsun tüm aşamalarında anlaşılır, sade, pratik bir hizmet alma ve destek süreci kurmak, bu sistemi olabildiğince mükemmel hale getirmek en büyük hedeflerimizden bir tanesidir.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="wrap-item text-center">
+                        <div class="item-img">
+                            <img src="~/Content/img/ser03.png">
+                        </div>
+                        <h3 class="pad-bt15">Fiyat Anlayışımız</h3>
+                        <p>
+                            Sektörümüzde fiyatlandırma, gerek hizmet çeşitliliğinden gerekse standartların olmamasından ciddi farklılıklar göstermektedir.Cetris profesyonel iş anlayışına uygun olarak sunduğu hizmetlerde standart fiyatlandırmaları kullanmaktadır. Hizmetlerimizde kullanılan malzemeler ve ürün özellikleri fiyatı doğrudan etkilemektedir. Ürünlerimize fiyat çıkarırken farklı malzemeye/uzman kadroya göre tercihleri sizlere sunmaktayız.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="wrap-item text-center">
+                        <div class="item-img">
+                            <img src="~/Content/img/ser04.png">
+                        </div>
+                        <h3 class="pad-bt15">Güvenli</h3>
+                        <p>Tüm bu hizmetleri sunarken önceliğimiz tüm kullanıcılarımızın bu değerli bilgilerini güvenli bir şekilde saklaman ve onlara sunmak. Tüm bu özelliklere sahip olmak bizi biz yapıyor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <!---->
+  
+    <section id="service" class="section-padding wow fadeInUp delay-02s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2 class="service-title pad-bt15">Ne Yapıyoruz?</h2>
+                    <p class="sub-title pad-bt15">
+                        @*Kişiyi rahatsız eden ve çözmek istediği her olgu, bizim için bir çalışma konusudur. Fakat ele aldığımız konuları şu ana başlıklar altında özetlemek de mümkündür. Kendini tanıma ve yeniden var etme ihtiyacı, Anlamsızlık ve boşunalık duyguları,Yalnızlık ve kimsesizlik duyguları, Tek başınalık ve yabancılık hissetme,Sevilme, şefkat ve korunma ihtiyacı, İlişki bağımlılığı,Terk edilme ve ayrılık korkuları, Beğenilme, onaylanma ve takdir ihtiyacı,Başarı ihtiyacı ve başarısızlık korkuları, Kendine güvensizlik, Suçluluk ve utanç duyguları,Kaygı, korku ve panik duyguları, Öfke ve gerginlik, Hayata dair hayal kırıklıkları, İnsanlara karşı güvensizlik ve kuşkuculuk,Harekete geçmeye cesaret bulamama,ve bunlara benzer daha pek çok konuda çalışıyoruz.*@
+                        @Html.DisplayFor(x => x.Features.FirstOrDefault().GeneralDescription)
+                    </p>
+                    <hr class="bottom-line">
+                </div>
+                @foreach (var item in Model.Features)
+                {
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="service-item">
+                            @*<span>R</span>*@ @Html.Raw(item.Title)
+                            <p>@Html.DisplayFor(x => item.Description)</p>
+                            @*<a href="#">learn more...</a>*@
+                        </div>
+                    </div>
+                }
+
+
+                @*<div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="service-item">
+                        <h3><span>D</span>igital Marketing</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        <a href="">Learn more...</a>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+    </section>
+    <section id="portfolio" class="section-padding wow fadeInUp delay-02s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2 class="service-title pad-bt15">Son Çalışmalarımız</h2>
+                    @*<p class="sub-title pad-bt15">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod<br>tempor incididunt ut labore et dolore magna aliqua.</p>*@
+                    <hr class="bottom-line">
+                </div>
+                @foreach (var item in Model.Works)
+                {
+                    <div class="col-md-4 col-sm-6 col-xs-12 portfolio-item padding-right-zero mr-btn-15">
+                        <figure>
+                            <img src="~/Areas/Admin/Files/Images/@item.PhotoURL"  class="img-responsive">
+                            <figcaption>
+                                <h2>@Html.DisplayFor(x => item.Title)</h2>
+                                <p>@Html.DisplayFor(x => item.Description)</p>
+                            </figcaption>
+                        </figure>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </section>
+    <!---->
+    <!---->
+    <!---->
+    <section id="testimonial" class="wow fadeInUp delay-02s">
+        <div class="bg-testicolor">
+            <div class="container section-padding">
+                <div class="row">
+                    <div class="testimonial-item">
+                        <ul class="bxslider">
+                            <li>
+                                <blockquote>
+                                    <img src="~/Content/img/Aytul.jpg" class="img-responsive">
+                                    <p>Cetris her zaman sadece yapabileceği işe söz veren, dürüst, yaptığı işin arkasında duran, işini temiz yapan, kendisini devamlı güncelleyen profesyonel bir firmadır. Kesinlikle tavsiye ederim.</p>
+                                </blockquote>
+                                <small>Aytül Türkseven(T7), Müdür</small>
+                            </li>
+                            <li>
+                                <blockquote>
+                                    <img src="~/Content/img/Kral.jpg" class="img-responsive">
+                                    <p>Cetris ekibine teşekkürü borç bilirim. Teşekkürler Cetris. @*Come a day there won't be room for naughty men like us to slip about at all. This job goes south, there well may not be another.*@ </p>
+                                </blockquote>
+                                <small>Tugay Ersoy, CEO</small>
+                            </li>
+                            <li>
+                                <blockquote>
+                                    <img src="~/Content/img/Betul.jpg" class="img-responsive">
+                                    <p>Öncelikle Cetris’e güveniyoruz, en önemlisi bu. Destek sistemi mükemmel, sorun yaşatmadığı için teşekkür etmek istiyorum. Teşekkürler CETRİS. </p>
+                                </blockquote>
+                                <small>Betül Şenoğlu, CEO</small>
+                            </li>
+
+                            <li>
+                                <blockquote>
+                                    <img src="~/Content/img/merve.jpg" class="img-responsive">
+                                    <p>Cetris’le ilgili beni en çok etkileyen konu beklentileri doğru algılamak için yakın çalışmaya gayret göstermeleri oldu. İşlerinde uzmanlar, deneyimliler ve hepsinden önemlisi çok hızlı destek ve çözüm sağlayan müthiş bir ekipleri var.</p>
+                                </blockquote>
+                                <small>Merve Özdemir, CEO</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="pricing-list">
+        <br /><br /><br /><br />
+        <div class="pricing-table">
+            <div class="col">
+                <div class="table">
+                    <h2>Temel Paket</h2>
+                    <div class="price">
+                        1000 TL + KDV
+                        @*<span>Aylık Tarife</span>*@
+                    </div>
+                    <ul>
+                        <li><strong>2</strong> Site</li>
+                        <li><strong>10</strong> E-Mail</li>
+                        <li><strong>100 GB</strong> Hafıza</li>
+                        <li><strong>1</strong> Hesap</li>
+                    </ul>
+                    <a href="#contact">Satın Al</a>
+                </div>
+            </div>
+            <div class="col">
+                <div class="table">
+                    <h2>Standart Paket</h2>
+                    <div class="pop">Popüler</div>
+                    <div class="price">
+                        3000 TL + KDV
+                        @*<span>Aylık Tarife</span>*@
+                    </div>
+                    <ul>
+                        <li><strong>4</strong> Site</li>
+                        <li><strong>20</strong> E-Mail</li>
+                        <li><strong>300 GB</strong> Hafıza</li>
+                        <li><strong>2</strong> Hesap</li>
+                    </ul>
+                    <a href="#contact">Satın Al</a>
+                </div>
+            </div>
+            <div class="col">
+                <div class="table">
+                    <h2>Premium Paket</h2>
+                    <div class="price">
+                        7.500 TL + KDV
+                        @*<span>Aylık Tarife</span>*@
+                    </div>
+                    <ul>
+                        <li><strong>6</strong> Site</li>
+                        <li><strong>30</strong> E-Mail</li>
+                        <li><strong>500 GB</strong> Hafıza</li>
+                        <li><strong>3</strong> Hesap</li>
+                    </ul>
+                    <a href="#contact">Satın Al</a>
+                </div>
+            </div>
+            <div class="col">
+                <div class="table">
+                    <h2>Enterprise Paket</h2>
+                    <div class="price">
+                        10.000 TL + KDV
+                        @*<span>Aylık Tarife</span>*@
+                    </div>
+                    <ul>
+                        <li><strong>8</strong> Site</li>
+                        <li><strong>40</strong> E-Mail</li>
+                        <li><strong>800 GB</strong> Hafıza</li>
+                        <li><strong>5</strong> Hesap</li>
+                    </ul>
+                    <a href="#contact">Satın Al</a>
+                </div>
+            </div>
+        </div>
+        <br /><br /><br /><br />
+
+    </section>
+
+
+    <!-- #region name -->
+    @*<section id="pricing" class="wow fadeInUp delay-02s">
+        <div class="fullwidth-block">
+            <div class="container">
+                <h2 class="section-title">Fit pricing to your needs</h2>
+                <small class="section-subtitle">Labore magnam quaerat voluptatem</small>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="pricing">
+                            <div class="pricing-header">
+                                <h3 class="pricing-title">Basic Package</h3>
+                                <div class="price">
+                                    <span class="num"><sup>$</sup>49<small>/ per year</small></span>
+                                </div>
+                            </div>
+                            <div class="pricing-checklist">
+                                <ul>
+                                    <li class="check">Voluptatem accusantium </li>
+                                    <li class="check">Doloremque laudantium totam</li>
+                                    <li class="check">Aperiam eaque ipsa quae</li>
+                                    <li>Inventore veritatis architecto </li>
+                                    <li>Beatae vitae dicta explicabo</li>
+                                    <li>Ipsam voluptatem quia voluptas</li>
+                                    <li>Aspernatur aut odit aut fugit</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="pricing featured">
+                            <div class="pricing-header">
+                                <h3 class="pricing-title">Medium Package</h3>
+                                <div class="price">
+                                    <span class="num"><sup>$</sup>99<small>/ per year</small></span>
+                                </div>
+                            </div>
+                            <div class="pricing-checklist">
+                                <ul>
+                                    <li class="check">Voluptatem accusantium </li>
+                                    <li class="check">Doloremque laudantium totam</li>
+                                    <li class="check">Aperiam eaque ipsa quae</li>
+                                    <li class="check">Inventore veritatis architecto </li>
+                                    <li class="check">Beatae vitae dicta explicabo</li>
+                                    <li>Ipsam voluptatem quia voluptas</li>
+                                    <li>Aspernatur aut odit aut fugit</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="pricing">
+                            <div class="pricing-header">
+                                <h3 class="pricing-title">Professional Package</h3>
+                                <div class="price">
+                                    <span class="num"><sup>$</sup>199<small>/ per year</small></span>
+                                </div>
+                            </div>
+                            <div class="pricing-checklist">
+                                <ul>
+                                    <li class="check">Voluptatem accusantium </li>
+                                    <li class="check">Doloremque laudantium totam</li>
+                                    <li class="check">Aperiam eaque ipsa quae</li>
+                                    <li class="check">Inventore veritatis architecto </li>
+                                    <li class="check">Beatae vitae dicta explicabo</li>
+                                    <li class="check">Ipsam voluptatem quia voluptas</li>
+                                    <li class="check">Aspernatur aut odit aut fugit</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- .row -->
+            </div> <!-- .container -->
+        </div>
+    </section>*@
+    <!---->
+    <!-- #endregion -->
+
+    <section id="contact" class="section-padding wow fadeInUp delay-02s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center white">
+                    <h5 class="service-title pad-bt15">BİZE ULAŞIN</h5>
+                    <p class="sub-title pad-bt15">Planlarımız hakkında bilgi almak için ya da istek ve şikayetleriniz için bize ulaşın! Ekibimiz en yakın zamanda dönüş sağlayacaktır.</p>
+                    <hr class="bottom-line white-bg">
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="loction-info white">
+                        <p><i class="fa fa-map-marker fa-fw pull-left fa-2x"></i>Çırağan caddesi No: 25 <br>Beşiktaş / İSTANBUL</p>
+                        <p><i class="fa fa-envelope-o fa-fw pull-left fa-2x"></i>info@cetris.com</p>
+                        <br />
+                        <p><i class="fa fa-phone fa-fw pull-left fa-2x"></i>0212 212 12 12</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="contact-form">
+                        <div id="sendmessage">Mesajınız başarıyla gönderildi. Teşekkür ederiz!</div>
+                        <div id="errormessage"></div>
+
+                        <form action="EmailSend" method="post" role="form" class="contactForm">
+                            <div class="col-md-6 padding-right-zero">
+                                <div class="form-group">
+                                    @*<input type="text" name="namesurname" class="form-control" id="name" placeholder="Adınız" data-rule="minlen:4" data-msg="En az 4 karakter giriniz" />*@
+                                    @Html.TextBoxFor(x => x.NameSurname, new { @class = "form-control", placeholder = "Ad ve Soyad" })
+                                    @Html.ValidationMessageFor(x => x.NameSurname, null, new { @class = "bg-danger" })
+                                    @*<div class="validation"></div>*@
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @*<input type="email" class="form-control" name="email" id="email" placeholder="Email Adresiniz" data-rule="email" data-msg="Geçerli bir email adresi giriniz" />*@
+                                    @Html.TextBoxFor(x => x.EMail, new { @class = "form-control", placeholder = "Email Giriniz." })
+                                    @Html.ValidationMessageFor(x => x.EMail, null, new { @class = "bg-danger" })
+                                    @*<div class="validation"></div>*@
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    @*<input type="text" class="form-control" name="subject" id="subject" placeholder="Konu" data-rule="minlen:4" data-msg="En az 8 karakterli bir konu giriniz" />*@
+                                    @Html.TextBoxFor(x => x.Subject, new { @class = "form-control", placeholder = "Konu Giriniz." })
+                                    @Html.ValidationMessageFor(x => x.Subject, null, new { @class = "bg-danger" })
+                                    @*<div class="validation"></div>*@
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    @*<textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Söylemek istediklerinizi bir kaç cümleyle açıklayınız" placeholder="Mesajınız"></textarea>*@
+                                    @Html.TextAreaFor(x => x.Message, new { @class = "form-control", rows = 5 })
+                                    @Html.ValidationMessageFor(x => x.Message, null, new { @class = "bg-danger" })
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-submit">GÖNDER</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+</body>

@@ -1,0 +1,366 @@
+﻿@model DDLsVM
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Ofiice/Views/Shared/_CalendarLayout.cshtml";
+}
+<div class="row">
+
+    <br /><br />
+    <br /><br />
+
+</div>
+<div id="calendar"></div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="eventTitle"></span></h4>
+            </div>
+            <div class="modal-body">
+                <button id="btnDelete" class="btn btn-default btn-sm pull-right">
+                    <span class="glyphicon glyphicon-remove"></span> Kaldır
+                </button>
+                <button id="btnEdit" class="btn btn-default btn-sm pull-right" style="margin-right:5px">
+                    <span class="glyphicon glyphicon-pencil"></span> Düzenle
+                </button>
+                <p id="pDetails"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalSave" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Update Event</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" style="margin-left:15px; margin-right:15px;">
+                    <input type="hidden" id="hdEventID" value="0" />
+                    <input type="hidden" id="hdExpertID" value="0" />
+                    <input type="hidden" id="hdClientID" value="0" />
+                    <div class="form-group">
+                        <label>Uzman:</label>
+                        @*    @Html.DropDownList("ExpertID", (IEnumerable<SelectListItem>)ViewBag.GetExperts, "Uzmanlar", new { @class = "form-control" })*@
+                        @Html.DropDownListFor(x => x.SelectedExpertId, new SelectList(Model.ExpertsList, "Value", "Text", Model.SelectedExpertId), new { @class = "form-control", @id = "ddlExperts" })
+                    </div>
+                    <div class="form-group">
+                        <label>Danışan:</label>
+                        @Html.DropDownListFor(x => x.SelectedClientId, new SelectList(Model.ClientsList, "Value", "Text", Model.SelectedClientId), new { @class = "form-control", @id = "ddlClients" })
+                    </div>
+                    <div class="form-group">
+                        <label>Konu: </label>
+                        <input type="text" id="txtSubject" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Başlangıç Tarihi: </label>
+                        <div class="input-group date" id="dtp1">
+                            <input type="text" id="txtStart" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar pull-left"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIsFullDay" />Tüm Gün</label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="divEndDate">
+                        <label>Bitiş Tarihi: </label>
+                        <div class="input-group date" id="dtp2">
+                            <input type="text" id="txtEnd" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Açıklama: </label>
+                        <textarea id="txtDescription" rows="3" class="form-control" placeholder="Belirtilmek istenen not..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Renk:</label>
+                        <select id="ddThemeColor" class="form-control">
+
+                            <option id="0" value="gray" selected>Varsayılan</option>
+                            <option value="red">Kırmızı</option>
+                            <option value="carrot">Mavi</option>
+                            <option value="purple">Mor</option>
+                            <option value="pink">Pembe</option>
+                            <option value="teal">Su Yeşili</option>
+                            <option value="mediumseagreen">Yeşil</option>
+                        </select>
+                    </div>
+                    <button type="button" id="btnSave" class="btn btn-success">Kaydet</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" rel="stylesheet" />
+<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.print.css" rel="stylesheet" media="print" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+
+@section Scripts{
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var events = [];
+            var selectedEvent = null;
+
+            function FetchEventAndRenderCalendar() {
+                var events = [];
+                $.ajax({
+                    type: "GET",
+                    url: "/homeoffice/GetEvents",
+                    success: function (data) {
+                        $.each(data, function (i, v) {
+                            events.push({
+                                appointmentID: v.AppointmentID,
+                                clientID: v.ClientID,
+                                expertID: v.ExpertID,
+                                title: v.Subject,
+                                description: v.Description == null ? "" : v.Description,
+                                start: moment(v.StartTime),
+                                end: v.EndTime != null ? moment(v.EndTime) : null,
+                                color: v.ThemeColor,
+                                allDay: v.IsFullDay
+                            });
+                        })
+
+                        GenerateCalendar(events);
+                    },
+                    error: function (error) {
+                        alert('Failed');
+                    }
+                })
+            }
+            FetchEventAndRenderCalendar();
+            function GenerateCalendar(events) {
+                $('#calendar').fullCalendar('destroy');
+                $('#calendar').fullCalendar({
+                    contentHeight: 570,
+                    defaultDate: new Date(),
+                    defaultView: 'agendaWeek',
+                    timeFormat: 'h(:mm)a',
+                    //header: {
+                    //    left: 'prev,next today',
+                    //    center: 'title',
+                    //    right: 'month,basicWeek,basicDay,agenda'
+                    //},
+                    header: { left: 'prev,next today', center: 'title', right: 'basicDay,agendaWeek,month' },
+                    eventLimit: true,
+                    eventColor: '#378006',
+                    events: events,
+                    eventClick:
+                        function (calEvent, jsEvent, view) {
+                            selectedEvent = calEvent;
+                            $('#myModal #eventTitle').text(calEvent.title);
+                            var $description = $('<div/>');
+                            $description.append($('<p/>').html('<b>Başlangıç: </b>' + calEvent.start.format("DD-MMM-YYYY HH:mm A")));
+                            if (calEvent.end != null) {
+                                $description.append($('<p/>').html('<b>Bitiş: </b>' + calEvent.end.format("DD-MMM-YYYY HH:mm A")));
+                            }
+                            $description.append($('<p/>').html('<b>Not: </b>' + calEvent.description));
+                            $('#myModal #pDetails').empty().html($description);
+                            $('#myModal').modal();
+
+                        },
+                    selectable: true,
+                    select: function (start, end) {
+                        selectedEvent = {
+                            appointmentID: 0,
+                            clientID: 19,
+                            expertID: 20,
+                            title: '',
+                            description: '',
+                            start: start,
+                            end: end,
+                            allDay: false,
+                            color: 'gray',
+                        };
+                        openAddEditForm();
+                        $('#calendar').fullCalendar('unselect');
+                    },
+                    editable: true,
+                    eventDrop: function (event) {
+                        var data = {
+                            AppointmentID: event.appointmentID,
+                            ExpertID: event.expertID == null ? 0 : event.expertID,
+                            ClientID: event.clientID == null ? 0 : event.clientID,
+                            Subject: event.title,
+                            StartTime: event.start.format('DD/MM/YYYY HH:mm A'),
+                            EndTime: event.end != null ? event.end.format('DD/MM/YYYY HH:mm A') : null,
+                            Description: event.description,
+                            ThemeColor: event.color,
+                            IsFullDay: event.allDay
+                        };
+                        SaveEvent(data);
+                    },
+                    eventResize: function (event) {
+                        var data = {
+                            AppointmentID: event.appointmentID,
+                            ExpertID: event.expertID == null ? 0 : event.expertID,
+                            ClientID: event.clientID == null ? 0 : event.clientID,
+                            Subject: event.title,
+                            StartTime: event.start.format('DD/MM/YYYY HH:mm A'),
+                            EndTime: event.end != null ? event.end.format('DD/MM/YYYY HH:mm A') : null,
+                            Description: event.description,
+                            ThemeColor: event.color,
+                            IsFullDay: event.allDay
+                        };
+                        SaveEvent(data);
+                    }
+                })
+            }
+
+            $('#btnEdit').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: '/homeoffice/GetSelecteds',
+                    data: { 'selectedClientId': selectedEvent.clientID, 'selectedExpertId': selectedEvent.expertID },
+                    success: function (data) {
+                        openAddEditForm();
+                        $('#myModal').modal('hide');
+
+
+                    },
+                    error: function () {
+                        alert('Failed');
+                    }
+
+
+                })
+            })
+
+            $('#btnDelete').click(function () {
+                if (selectedEvent != null && confirm('Bu etkinliği silmek istediğinizden emin misiniz?')) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/homeoffice/DeleteEvent',
+                        data: { 'id': selectedEvent.appointmentID },
+                        success: function (data) {
+                            if (data.status) {
+                                FetchEventAndRenderCalendar();
+                                $('#myModal').modal('hide');
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+
+                    })
+                }
+            })
+
+            $('#dtp1,#dtp2').datetimepicker({
+                format: 'DD/MM/YYYY HH:mm A' //web config e git globalization
+            });
+            $('#chkIsFullDay').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#divEndDate').hide();
+                }
+                else {
+                    $('#divEndDate').show();
+                }
+            });
+            function openAddEditForm() {
+                if (selectedEvent != null) {
+                    $('#ddlExperts').val(selectedEvent.expertID);
+                    $('#ddlClients').val(selectedEvent.clientID);
+                    $('#hdEventID').val(selectedEvent.appointmentID);
+                    $('#hdExpertID').val(selectedEvent.clientID);
+                    $('#hdClientID').val(selectedEvent.expertID);
+                    $('#txtSubject').val(selectedEvent.title);
+                    $('#txtStart').val(selectedEvent.start.format('DD/MM/YYYY HH:mm A'));
+                    $('#chkIsFullDay').prop("checked", selectedEvent.allDay || false);
+                    $('#chkIsFullDay').change();
+                    $('#txtEnd').val(selectedEvent.end != null ? selectedEvent.end.format('DD/MM/YYYY HH:mm A') : '');
+                    $('#txtDescription').val(selectedEvent.description);
+                    $('#ddThemeColor').val(selectedEvent.color);
+                }
+                else if (selectedEvent == null) {
+                    $('#hdExpertID').val() = 0;
+                    $('#hdClientID').val() = 0;
+                }
+                $('#myModal').modal('hide');
+                $('#myModalSave').modal();
+            }
+
+            $('#btnSave').click(function () {
+                //validation
+                if ($('#txtSubject').val().trim() == "") {
+                    alert('Konu Boş Geçilemez!');
+                    return;
+                }
+                if ($('#txtStart').val().trim() == "") {
+                    alert('Başlangıç Tarihi Boş Geçilemez!');
+                    return;
+                }
+                if ($('#chkIsFullDay').is(':checked') == false && $('#txtEnd').val().trim() == "") {
+                    alert('Bitiş Tarihi Boş Geçilemez!');
+                    return;
+                }
+                else {
+                    var startDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm A").toDate();
+                    var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY HH:mm A").toDate();
+                    if (startDate > endDate) {
+                        alert('Geçersiz Tarih Aralığı!');
+                        return;
+                    }
+                }
+
+                var data = {
+                    AppointmentID: $('#hdEventID').val(),
+                    ExpertID: $('#ddlExperts').val() == null ? 0 : $('#ddlExperts').val(),
+                    ClientID: $('#ddlClients').val() == null ? 0 : $('#ddlClients').val(),
+                    Subject: $('#txtSubject').val().trim(),
+                    StartTime: $('#txtStart').val(),
+                    EndTime: $('#chkIsFullDay').is(':checked') ? null : $('#txtEnd').val().trim(),
+                    Description: $('#txtDescription').val(),
+                    ThemeColor: $('#ddThemeColor').val(),
+                    IsFullDay: $('#chkIsFullDay').is(':checked') ? true : false
+                }
+                SaveEvent(data);
+            })
+            function SaveEvent(data) {
+                $.ajax({
+                    type: "POST",
+                    url: '/homeoffice/SaveEvent',
+                    data: data,
+                    success: function (data) {
+                        if (data.status) {
+                            FetchEventAndRenderCalendar();
+                            $('#myModalSave').modal('hide');
+
+                        }
+                    },
+                    error: function () {
+                        alert('Failed');
+                    }
+
+
+                })
+            }
+
+        })
+
+
+    </script>
+
+
+
+}
