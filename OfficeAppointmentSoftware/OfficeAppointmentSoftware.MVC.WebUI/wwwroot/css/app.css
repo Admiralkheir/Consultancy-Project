@@ -170,7 +170,9 @@ body {
     border-bottom: 1px solid var(--app-border);
 }
 .app-topbar .company { display: flex; align-items: center; gap: .6rem; min-width: 0; }
-.app-topbar .company img { height: 32px; width: 32px; object-fit: cover; border-radius: .5rem; }
+.app-topbar .company img { height: 36px; width: 36px; }
+/* Company logos keep their aspect ratio (they often contain text) on a light tile. */
+img.logo-img { object-fit: contain; background: #fff; border: 1px solid var(--app-border); border-radius: .5rem; padding: 2px; }
 .app-topbar .company-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .icon-btn {
     width: 38px; height: 38px; border-radius: .5rem;
