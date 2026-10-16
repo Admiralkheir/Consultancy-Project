@@ -1,31 +1,26 @@
-﻿using OfficeAppointmentSoftware.DAL.Contexts;
+﻿using Microsoft.EntityFrameworkCore;
+using OfficeAppointmentSoftware.DAL.Contexts;
 using OfficeAppointmentSoftware.DAL.Repositories.Abstracts.Core;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OfficeAppointmentSoftware.DAL.Repositories.Concretes.Core
 {
-    public class BaseRepository<TEntity, TKey> : IBaseRepository<TEntity, TKey> , IDisposable where TEntity : class
- {
-        AppointmentDBContext _context;
-        protected IDbSet<TEntity>  _dbSet;
-        public BaseRepository()
+    public class BaseRepository<TEntity, TKey> : IBaseRepository<TEntity, TKey> where TEntity : class
     {
-            _context = new AppointmentDBContext();
-            _dbSet = _context.Set<TEntity>(); 
+        // The context is owned by the DI scope (one per request), so the repository never disposes it.
+        protected readonly AppointmentDBContext _context;
+        protected readonly DbSet<TEntity> _dbSet;
 
-    }
-   
+        public BaseRepository(AppointmentDBContext context)
+        {
+            _context = context;
+            _dbSet = _context.Set<TEntity>();
+        }
+
         public void Add(TEntity entity)
         {
             var entry = _context.Entry(entity);
             entry.State = EntityState.Added;
             _context.SaveChanges();
-            Dispose();
         }
 
         public void Delete(TKey key)
@@ -34,12 +29,6 @@ namespace OfficeAppointmentSoftware.DAL.Repositories.Concretes.Core
             var entry = _context.Entry(entity);
             entry.State = EntityState.Deleted;
             _context.SaveChanges();
-            Dispose();
-        }
-        
-        public void Dispose()
-        {
-            _context.Dispose();
         }
 
         public TEntity Find(System.Linq.Expressions.Expression<Func<TEntity, bool>> lambda)
@@ -70,7 +59,6 @@ namespace OfficeAppointmentSoftware.DAL.Repositories.Concretes.Core
             var entry = _context.Entry(entity);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
-            Dispose();
         }
     }
 }

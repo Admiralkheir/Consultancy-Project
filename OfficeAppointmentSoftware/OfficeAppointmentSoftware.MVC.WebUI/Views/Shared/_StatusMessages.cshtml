@@ -1,0 +1,28 @@
+@* Success / error messages set by controllers through TempData, shown as toasts. *@
+@{
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+}
+@if (success != null || error != null)
+{
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        @if (success != null)
+        {
+            <div class="toast align-items-center text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true" data-autoshow>
+                <div class="d-flex">
+                    <div class="toast-body"><i class="bi bi-check-circle me-2"></i>@success</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+                </div>
+            </div>
+        }
+        @if (error != null)
+        {
+            <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-autoshow>
+                <div class="d-flex">
+                    <div class="toast-body"><i class="bi bi-exclamation-triangle me-2"></i>@error</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+                </div>
+            </div>
+        }
+    </div>
+}

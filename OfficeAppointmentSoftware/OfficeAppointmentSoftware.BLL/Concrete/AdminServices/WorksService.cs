@@ -1,21 +1,16 @@
 ﻿using OfficeAppointmentSoftware.BLL.Abstracts.AdminServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OfficeAppointmentSoftware.DAL.Repositories.Abstracts.AdminRepositories;
 using OfficeAppointmentSoftware.Entities.Entities;
-using OfficeAppointmentSoftware.DAL.Repositories.Concretes.AdminRepositories;
 using System.Linq.Expressions;
 
 namespace OfficeAppointmentSoftware.BLL.Concrete.AdminServices
 {
-   public class WorksService : WorksRepository, IWorksService
+    public class WorksService : IWorksService
     {
-        WorksRepository _worksRepository;
-        public  WorksService()
+        private readonly IWorksRepository _worksRepository;
+        public WorksService(IWorksRepository worksRepository)
         {
-            _worksRepository = new WorksRepository();
+            _worksRepository = worksRepository;
         }
         public void AddWork(Works work)
         {

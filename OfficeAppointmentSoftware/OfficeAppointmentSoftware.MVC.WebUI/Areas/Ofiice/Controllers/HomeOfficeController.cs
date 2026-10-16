@@ -1,337 +1,511 @@
-﻿using OfficeAppointmentSoftware.BLL.Concrete;
-using OfficeAppointmentSoftware.BLL.Concrete.AdminServices;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using OfficeAppointmentSoftware.BLL.Abstracts;
+using OfficeAppointmentSoftware.BLL.Abstracts.AdminServices;
 using OfficeAppointmentSoftware.DAL.Contexts;
 using OfficeAppointmentSoftware.Entities.Entities;
 using OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Models;
-using OfficeAppointmentSoftware.MVC.WebUI.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+using OfficeAppointmentSoftware.MVC.WebUI.Infrastructure;
+using OfficeAppointmentSoftware.MVC.WebUI.Models.IdentityModels;
 using static OfficeAppointmentSoftware.MVC.WebUI.Areas.Helper.FileHelper;
 
 namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Controllers
 {
+    [Area("Ofiice")]
     [Authorize(Roles = "User")]
     public class HomeOfficeController : Controller
     {
-        ClientService _clientService;
-        ExpertService _expertService;
-        ContactService _contactService;
-        ClientExpertVM clientsAndexperts = new ClientExpertVM();
-        DDLsVM model = new DDLsVM();
-        CompanyService _companyService;
-        
-        public HomeOfficeController()
-        {
-            _contactService = new ContactService();
-            _companyService = new CompanyService();
-            _clientService = new ClientService();
-            _expertService = new ExpertService();
-            model.ExpertsList = GetExperts;
-            model.ClientsList = GetClients;
-            //ViewBag.CompanyID = AccountController._compID ;
-            clientsAndexperts.Company = _companyService.Find(x => x.CompanyID == AccountController._compID);
-        }
-        public ActionResult Index()
-        {
-            clientsAndexperts.ClientTotal = _ctx.Client.Where(x => x.Continuity == true).Where(x=>x.ClientID!=8 && x.CompanyID== AccountController._compID).Count();
-            clientsAndexperts.ExpertsTotal = _ctx.Expert.Where(x=>x.Company.CompanyID == AccountController._compID).Count();
-            clientsAndexperts.AppsTotal = _ctx.Appointment.Where(x => x.StartTime.Month == DateTime.Now.Month && x.Client.CompanyID == AccountController._compID).Count();
-            
-            clientsAndexperts.AppsTotalDaily = _ctx.Database.SqlQuery<Appointment>(
-                "SELECT * FROM Appointment join Expert on Appointment.ExpertID=Expert.ExpertID WHERE DAY(StartTime) = DATEADD(day, 0, day(GetDate()))").ToList() ;
-            clientsAndexperts.AppointmentsExpert = _ctx.Database.SqlQuery<Expert>(
-    "SELECT * FROM Appointment join Expert on Appointment.ExpertID=Expert.ExpertID WHERE DAY(StartTime) = DATEADD(day, 0, day(GetDate())) ").ToList();
-            clientsAndexperts.AppointmentsClient = _ctx.Database.SqlQuery<Client>(
-"SELECT * FROM Appointment join Client on Appointment.ClientID=Client.ClientID WHERE DAY(StartTime) = DATEADD(day, 0, day(GetDate())) ").ToList();
+        private const string ExpertImagesPath = "~/Areas/Ofiice/image/";
+        private const int MaxFileSize = 500000;
+        private static readonly string[] ImageTypes = { "image/gif", "image/png", "image/jpeg", "image/pjpeg", "image/bmp", "image/x-png", "image/jpg", "image/webp" };
 
-            if (clientsAndexperts.ClientTotal!=0)
+        private readonly IClientService _clientService;
+        private readonly IExpertService _expertService;
+        private readonly IContactService _contactService;
+        private readonly ICompanyService _companyService;
+        private readonly AppointmentDBContext _ctx;
+        private readonly string _webRootPath;
+
+        public HomeOfficeController(IClientService clientService, IExpertService expertService, IContactService contactService,
+            ICompanyService companyService, AppointmentDBContext ctx, IWebHostEnvironment environment)
+        {
+            _contactService = contactService;
+            _companyService = companyService;
+            _clientService = clientService;
+            _expertService = expertService;
+            _ctx = ctx;
+            _webRootPath = environment.WebRootPath;
+        }
+
+        // The signed-in office (from the auth cookie claim). Every query below is scoped to it.
+        private int CompanyId => User.GetCompanyId().GetValueOrDefault();
+
+        private IQueryable<Appointment> OfficeAppointments => _ctx.Appointment.Where(x => x.Expert.CompanyID == CompanyId);
+
+        private static IQueryable<AgendaItemVM> ToAgenda(IQueryable<Appointment> query) => query.Select(x => new AgendaItemVM
+        {
+            AppointmentID = x.AppointmentID,
+            Subject = x.Subject,
+            Start = x.StartTime,
+            End = x.EndTime,
+            IsFullDay = x.IsFullDay == true,
+            ExpertName = x.Expert.Name + " " + x.Expert.Surname,
+            ClientName = x.Client != null ? x.Client.Name + " " + x.Client.Surname : null,
+            Color = x.ThemeColor
+        });
+
+        #region Dashboard
+
+        public IActionResult Index()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+            var weekStart = today.AddDays(-(((int)today.DayOfWeek + 6) % 7)); // Monday
+            var weekEnd = weekStart.AddDays(7);
+
+            ClientExpertVM model = new ClientExpertVM();
+            model.Company = _companyService.GetCompany(CompanyId);
+            model.ClientTotal = _ctx.Client.Count(x => x.CompanyID == CompanyId && x.Continuity);
+            model.ExpertsTotal = _ctx.Expert.Count(x => x.CompanyID == CompanyId);
+            model.AppsToday = OfficeAppointments.Count(x => x.StartTime >= today && x.StartTime < tomorrow);
+            model.AppsThisWeek = OfficeAppointments.Count(x => x.StartTime >= weekStart && x.StartTime < weekEnd);
+            model.TodaysAppointments = ToAgenda(OfficeAppointments.Where(x => x.StartTime >= today && x.StartTime < tomorrow).OrderBy(x => x.StartTime)).ToList();
+            model.UpcomingAppointments = ToAgenda(OfficeAppointments.Where(x => x.StartTime >= tomorrow).OrderBy(x => x.StartTime).Take(6)).ToList();
+
+            // Age groups of active clients, with real ages (birthday-aware) and non-overlapping ranges.
+            var birthDates = _ctx.Client.Where(x => x.CompanyID == CompanyId && x.Continuity).Select(x => x.BirthDate).ToList();
+            var groups = birthDates.GroupBy(b => AgeHelper.Group(AgeHelper.Age(b, today))).ToDictionary(g => g.Key, g => g.Count());
+            model.AgeGroups = AgeHelper.Groups.Select(g =>
             {
-            clientsAndexperts.AppsPercent = (Math.Truncate((Convert.ToDecimal(clientsAndexperts.AppsTotal) / 40) * 100));
-            //clientsAndexperts.Kid1 = Math.Truncate(((((from c in _ctx.Client where (DateTime.Now.Year - c.BirthDate.Year) < 4 && c.ClientID!=8  select c).Count()) / Convert.ToDecimal(clientsAndexperts.ClientTotal))*100));
-            clientsAndexperts.Kid2 = Math.Round((((from c in _ctx.Client/*.Where(x=>x.CompanyID==1)*/ where (DateTime.Now.Year - c.BirthDate.Year) < 13 && (DateTime.Now.Year - c.BirthDate.Year) > 2 && c.ClientID != 8 && c.CompanyID==AccountController._compID select c).Count()) / Convert.ToDecimal(clientsAndexperts.ClientTotal)) * 100,2);
-            clientsAndexperts.Young = Math.Round((((from c in _ctx.Client where (DateTime.Now.Year - c.BirthDate.Year) > 11 && (DateTime.Now.Year - c.BirthDate.Year) < 18 && c.ClientID != 8 && c.CompanyID == AccountController._compID select c).Count() ) / Convert.ToDecimal(clientsAndexperts.ClientTotal)) * 100,2);
-            clientsAndexperts.Adult = Math.Round((((from c in _ctx.Client where (DateTime.Now.Year - c.BirthDate.Year) > 17 && (DateTime.Now.Year - c.BirthDate.Year) < 40 && c.ClientID != 8 && c.CompanyID == AccountController._compID select c).Count()) / Convert.ToDecimal(clientsAndexperts.ClientTotal)) * 100,2);
-            clientsAndexperts.Old = Math.Round((((from c in _ctx.Client where (DateTime.Now.Year - c.BirthDate.Year) >39 && c.ClientID != 8 && c.CompanyID == AccountController._compID select c).Count()) / Convert.ToDecimal(clientsAndexperts.ClientTotal)) * 100,2);
-
-            }
-
-            return View(clientsAndexperts);
-        }
-        [HttpGet]
-        public ActionResult ExpertAdd()
-        {
-            return View();
-        }
-      
-        [HttpPost]
-        [ValidateInput(false)]
-        public ActionResult ExpertAdd(ExpertVM model, IEnumerable<HttpPostedFileBase> file)
-        {
-
-            ContactService _contactService = new ContactService();
-            string physicalPath = " ~/Areas/Ofiice/image/";
-            int maxFileSize = 500000;
-
-            Expert expert;
-
-            Dictionary<FileResultItem, FileResultType> resultModel = FileDocumentUpload(file, maxFileSize, physicalPath, new string[] { "image/gif", "image/png", "image/jpeg", "image/pjpeg", "image/bmp", "image/x-png", "image/jpg" });
-
-            foreach (var item in resultModel)
-            {
-                if (item.Value == FileResultType.Error || item.Value == FileResultType.NoneFile || item.Value == FileResultType.SizeOver || item.Value == FileResultType.WrongType)
+                var count = groups.GetValueOrDefault(g.Name);
+                return new AgeGroupVM
                 {
-                    RemoveAll(resultModel.Keys, physicalPath);
-                    TempData["NoteCss"] = "warning";
-                    TempData["NoteText"] = ControlMessages(item.Value, maxFileSize).Keys.FirstOrDefault().ToString();
+                    Name = g.Name,
+                    Range = g.Range,
+                    Count = count,
+                    Percent = birthDates.Count == 0 ? 0 : Math.Round(count * 100m / birthDates.Count, 1)
+                };
+            }).ToList();
 
-                    return View("ExpertAdd");
-                }
-            }
-
-            expert = new Expert();
-            foreach (var item in resultModel.Keys)
-            {
-                try
-                {
-                expert.PhotoURL = item.UploadPath;
-                expert.Name = model.Expert.Name;
-                expert.Surname = model.Expert.Surname;
-                expert.Profession = model.Expert.Profession;
-                expert.WagePolicy = model.Expert.WagePolicy;
-                expert.Note = model.Expert.Note;
-                expert.BirthDate = model.Expert.BirthDate;
-                expert.CompanyID =Convert.ToInt32(AccountController._compID);
-                _expertService.AddExpert(expert);
-                _contactService.AddContact(new Contact { ExpertID = expert.ExpertID, Address = model.Contact.Address, PhoneNumber1 = model.Contact.PhoneNumber1, PhoneNumber2 = model.Contact.PhoneNumber2, IsActive = true, Email = model.Contact.Email });
-                    ViewBag.Mesaj = "Uzman Başarıyla Eklendi";
-
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }  
-            }
-            return View("ExpertAdd");
-        }
-       
-        [HttpGet]
-        public ActionResult ClientAdd()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateInput(false)]
-        public ActionResult ClientAdd(ClientVM model)
-        {
-           
-          //  JsonModel jmodel = new jsonModel();
-            Client client;
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    client = new Client();
-                    client.Name = model.Client.Name;
-                    client.Surname = model.Client.Surname;
-                    client.TcKimlik = model.Client.TcKimlik;
-                    client.Problem = model.Client.Problem;
-                    client.BirthDate = model.Client.BirthDate;
-                    client.Note = model.Client.Note;
-                    client.Continuity = true;
-                    client.CompanyID = Convert.ToInt32(AccountController._compID); ;
-                    _clientService.AddClient(client);
-                    _contactService.AddContact(new Contact { ClientID = client.ClientID, Address = model.Contact.Address, PhoneNumber1 = model.Contact.PhoneNumber1, PhoneNumber2 = model.Contact.PhoneNumber2, IsActive = true, Email = model.Contact.Email });
-
-                    ViewBag.Message = "Danışan Başarıyla Eklendi";
-
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-            }
-            return View();
-        
-        }
-        public static int ConId;
-       [HttpGet]
-        public ActionResult ClientUpdate(int id)
-        {
-           
-
-            ClientVM model = new ClientVM();
-            model.Client = _clientService.FindClient(x => x.ClientID == id);
-            model.Contact = _contactService.Find(x => x.ClientID == id && x.IsActive == true);
-           ConId= model.Contact.ContactID;
             return View(model);
         }
-      
+
+        #endregion
+
+        #region Experts
+
+        public IActionResult ListExpertInfos()
+        {
+            var now = DateTime.Now;
+            var experts = (from c in _ctx.Expert
+                           join co in _ctx.Contact on c.ExpertID equals co.ExpertID
+                           where co.IsActive == true && c.CompanyID == CompanyId
+                           select new ExpertInfosDTO
+                           {
+                               ID = c.ExpertID,
+                               Uzmanlik = c.Profession,
+                               AdSoyad = c.Name + " " + c.Surname,
+                               PhotoURL = c.PhotoURL,
+                               Telno = co.PhoneNumber1,
+                               Email = co.Email,
+                               Not = c.Note,
+                               UpcomingCount = c.Appointment.Count(a => a.StartTime >= now)
+                           }).OrderBy(x => x.AdSoyad).ToList();
+            experts.ForEach(x => x.Telno = x.Telno?.Trim());
+            return View(experts);
+        }
+
+        [HttpGet]
+        public IActionResult ExpertDetail(short id)
+        {
+            var expert = _expertService.FindExpert(x => x.ExpertID == id && x.CompanyID == CompanyId);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+            var model = new ExpertDetailVM
+            {
+                Expert = expert,
+                Contact = _contactService.Find(x => x.ExpertID == id && x.IsActive == true),
+                TotalAppointments = _ctx.Appointment.Count(x => x.ExpertID == id),
+                UpcomingAppointments = ToAgenda(_ctx.Appointment.Where(x => x.ExpertID == id && x.StartTime >= DateTime.Today).OrderBy(x => x.StartTime).Take(10)).ToList()
+            };
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ExpertAdd()
+        {
+            return View("ExpertUpdate", new ExpertVM());
+        }
+
+        [HttpGet]
+        public IActionResult ExpertUpdate(short id)
+        {
+            var expert = _expertService.FindExpert(x => x.ExpertID == id && x.CompanyID == CompanyId);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+            return View(new ExpertVM { Expert = expert, Contact = _contactService.Find(x => x.ExpertID == id && x.IsActive == true) ?? new Contact() });
+        }
 
         [HttpPost]
-        [ValidateInput(false)]
-        public ActionResult ClientUpdate(ClientVM model)
+        public IActionResult ExpertUpdate(ExpertVM model, IEnumerable<IFormFile> file)
         {
-            ContactService oldContactService = new ContactService();
-
-            Contact old = new Contact();
-            old = oldContactService.Find(x => x.ContactID == ConId && x.IsActive == true);
-            old.IsActive = false;
-            oldContactService.UpdateContact(old);
-
-            if (ModelState.IsValid)
+            var isNew = model.Expert.ExpertID == 0;
+            Expert existing = null;
+            if (!isNew)
             {
-                try
+                existing = _ctx.Expert.AsNoTracking().FirstOrDefault(x => x.ExpertID == model.Expert.ExpertID && x.CompanyID == CompanyId);
+                if (existing == null)
                 {
-               _clientService.UpdateClient(model.Client);
-                _contactService.AddContact(new Contact { ClientID = model.Client.ClientID, Address = model.Contact.Address, PhoneNumber1 = model.Contact.PhoneNumber1, PhoneNumber2 = model.Contact.PhoneNumber2, IsActive = true, Email = model.Contact.Email });
-                    ViewBag.MessageUpdate = "Danışan Başarıyla Güncellendi";
-               
-            }
-                
-                catch (Exception)
-                {
-
-                    throw;
+                    return NotFound();
                 }
-
-            }   
-            return RedirectToAction("ListClientInfos");
-
-        }
-        public static int ExpCOnId;
-        [HttpGet]
-        public ActionResult ExpertUpdate(short id)
-        {
-
-            ExpertVM model = new ExpertVM();
-            model.Expert = _expertService.FindExpert(x => x.ExpertID == id);
-            model.Contact = _contactService.Find(x => x.ExpertID == id && x.IsActive == true);
-            ExpCOnId = model.Contact.ContactID;
-
-            return View(model);
-
-        }
-
-        [HttpPost]
-        [ValidateInput(false)]
-        public ActionResult ExpertUpdate(ExpertVM model, IEnumerable<HttpPostedFileBase> file)
-        {
-            ContactService oldService = new ContactService();
-            Contact old = new Contact();
-            old = oldService.Find(x => x.ContactID == ExpCOnId && x.IsActive == true);
-            old.IsActive = false;
-            oldService.UpdateContact(old);
-      
-                List<FileResultItem> fileResultItems = new List<FileResultItem> { new FileResultItem { UploadPath = model.Expert.PhotoURL } };
-                //RemoveAll(fileResultItems, "~/Areas/Ofiice/image/");
-
-                _expertService.UpdateExpert(model.Expert);
-                _contactService.AddContact(new Contact { ExpertID = model.Expert.ExpertID, Address = model.Contact.Address, PhoneNumber1 = model.Contact.PhoneNumber1, PhoneNumber2 = model.Contact.PhoneNumber2, IsActive = true, Email = model.Contact.Email });
-        
-            return RedirectToAction("ListExpertInfos");
-
-        }
-        #region TAKVIM 
-
-        public AppointmentDBContext _ctx = new AppointmentDBContext();
-
-        public object JsonConvert { get; private set; }
-        private IEnumerable<SelectListItem> GetClients
-        {
-            get
-            {
-
-                return _ctx.Client.Where(x => x.Continuity == true && x.CompanyID==AccountController._compID).Select(a => new SelectListItem
-                {
-                    Text = (a.Name + " " + a.Surname),
-                    Value = a.ClientID.ToString(),
-                    //  Selected = a.ClientID == a.Event.Select(x=>x.ClientID).FirstOrDefault()? true : false
-                }).ToList();
-
             }
-        }
-        private IEnumerable<SelectListItem> GetExperts
-        {
-            get
+            ValidateBirthDate("Expert.BirthDate", model.Expert.BirthDate);
+            if (!ModelState.IsValid)
             {
-                return _ctx.Expert.Where(x=>x.CompanyID==AccountController._compID).Select(a => new SelectListItem
-                {
-                    Text = (a.Name + " " + a.Surname),
-                    Value = a.ExpertID.ToString(),
-                    //Selected = a.ExpertID == a.Event.Select(x => x.ExpertID).FirstOrDefault() ? true : false
-                }).ToList();
+                return View(model);
             }
-        }
-        // GET: Home
-        [HttpGet]
-        public ActionResult AppointmentOpss()
-        {
-            return View(model);
-        }
-        [HttpPost]
-        public JsonResult GetSelecteds(int selectedClientId, int selectedExpertId)
-        {
-            if (selectedClientId > 0 && selectedExpertId > 0)
+
+            // The photo is optional; a new upload replaces the current one.
+            model.Expert.PhotoURL = existing?.PhotoURL;
+            if (file != null && file.Any())
             {
-                model.SelectedExpertId = selectedExpertId;
-                model.SelectedClientId = selectedClientId;
+                var upload = FileDocumentUpload(file, MaxFileSize, ExpertImagesPath, _webRootPath, ImageTypes);
+                var failed = upload.FirstOrDefault(x => x.Value != FileResultType.Complete);
+                if (failed.Key != null)
+                {
+                    RemoveAll(upload.Keys, ExpertImagesPath, _webRootPath);
+                    ModelState.AddModelError("file", ControlMessages(failed.Value, MaxFileSize).Keys.First());
+                    return View(model);
+                }
+                RemoveAll(new[] { new FileResultItem { UploadPath = existing?.PhotoURL } }, ExpertImagesPath, _webRootPath);
+                model.Expert.PhotoURL = upload.Keys.First().UploadPath;
+            }
+
+            model.Expert.CompanyID = CompanyId;
+            if (isNew)
+            {
+                _expertService.AddExpert(model.Expert);
             }
             else
             {
-                model.SelectedExpertId = 20;
-                model.SelectedClientId = 19;
+                _expertService.UpdateExpert(model.Expert);
+            }
+            ReplaceContact(model.Contact, expertId: model.Expert.ExpertID);
+
+            TempData["Success"] = isNew ? "Uzman eklendi." : "Uzman bilgileri güncellendi.";
+            return RedirectToAction("ExpertDetail", new { id = model.Expert.ExpertID });
+        }
+
+        [HttpPost]
+        public IActionResult ExpertDelete(short id)
+        {
+            var expert = _expertService.FindExpert(x => x.ExpertID == id && x.CompanyID == CompanyId);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+            if (_ctx.Appointment.Any(x => x.ExpertID == id))
+            {
+                TempData["Error"] = $"{expert.Name} {expert.Surname} adına kayıtlı randevular olduğu için silinemez. Önce randevuları silin veya başka bir uzmana aktarın.";
+                return RedirectToAction("ExpertDetail", new { id });
+            }
+            _expertService.DeleteExpert(id);
+            RemoveAll(new[] { new FileResultItem { UploadPath = expert.PhotoURL } }, ExpertImagesPath, _webRootPath);
+            TempData["Success"] = "Uzman silindi.";
+            return RedirectToAction("ListExpertInfos");
+        }
+
+        #endregion
+
+        #region Clients
+
+        [HttpGet]
+        public IActionResult ListClientInfos()
+        {
+            var today = DateTime.Today;
+            var clients = (from c in _ctx.Client
+                           join co in _ctx.Contact on c.ClientID equals co.ClientID
+                           where co.IsActive == true && c.CompanyID == CompanyId
+                           select new { c.ClientID, c.TcKimlik, c.Name, c.Surname, c.BirthDate, c.Continuity, co.PhoneNumber1, co.Email, co.Address })
+                           .ToList()
+                           .Select(x =>
+                           {
+                               var age = AgeHelper.Age(x.BirthDate, today);
+                               return new ClientInfosDTO
+                               {
+                                   ID = x.ClientID,
+                                   Yas = age,
+                                   DanisanTuru = AgeHelper.Group(age),
+                                   TCKimlik = x.TcKimlik,
+                                   AdSoyad = x.Name + " " + x.Surname,
+                                   Telno = x.PhoneNumber1?.Trim(),
+                                   Email = x.Email,
+                                   Adres = x.Address,
+                                   DevamDurumu = x.Continuity,
+                               };
+                           })
+                           .OrderByDescending(x => x.DevamDurumu).ThenBy(x => x.AdSoyad)
+                           .ToList();
+            return View(clients);
+        }
+
+        [HttpGet]
+        public IActionResult ClientDetail(int id)
+        {
+            var client = _clientService.FindClient(x => x.ClientID == id && x.CompanyID == CompanyId);
+            if (client == null)
+            {
+                return NotFound();
+            }
+            var model = new ClientDetailVM
+            {
+                Client = client,
+                Contact = _contactService.Find(x => x.ClientID == id && x.IsActive == true),
+                Age = AgeHelper.Age(client.BirthDate, DateTime.Today),
+                Appointments = ToAgenda(_ctx.Appointment.Where(x => x.ClientID == id).OrderByDescending(x => x.StartTime).Take(20)).ToList()
+            };
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ClientAdd()
+        {
+            return View("ClientUpdate", new ClientVM());
+        }
+
+        [HttpGet]
+        public IActionResult ClientUpdate(int id)
+        {
+            var client = _clientService.FindClient(x => x.ClientID == id && x.CompanyID == CompanyId);
+            if (client == null)
+            {
+                return NotFound();
+            }
+            return View(new ClientVM { Client = client, Contact = _contactService.Find(x => x.ClientID == id && x.IsActive == true) ?? new Contact() });
+        }
+
+        [HttpPost]
+        public IActionResult ClientUpdate(ClientVM model)
+        {
+            var isNew = model.Client.ClientID == 0;
+            if (!isNew && !_ctx.Client.Any(x => x.ClientID == model.Client.ClientID && x.CompanyID == CompanyId))
+            {
+                return NotFound();
+            }
+            ValidateBirthDate("Client.BirthDate", model.Client.BirthDate);
+            if (!string.IsNullOrEmpty(model.Client.TcKimlik)
+                && _ctx.Client.Any(x => x.CompanyID == CompanyId && x.TcKimlik == model.Client.TcKimlik && x.ClientID != model.Client.ClientID))
+            {
+                ModelState.AddModelError("Client.TcKimlik", "Bu TC Kimlik No ile kayıtlı bir danışan zaten var.");
+            }
+            // Nothing is changed unless the whole form is valid (the old code deactivated the contact first).
+            if (!ModelState.IsValid)
+            {
+                return View(model);
             }
 
-            return Json(model, JsonRequestBehavior.AllowGet);
+            model.Client.CompanyID = CompanyId;
+            if (isNew)
+            {
+                model.Client.Continuity = true;
+                _clientService.AddClient(model.Client);
+            }
+            else
+            {
+                _clientService.UpdateClient(model.Client);
+            }
+            ReplaceContact(model.Contact, clientId: model.Client.ClientID);
+
+            TempData["Success"] = isNew ? "Danışan eklendi." : "Danışan bilgileri güncellendi.";
+            return RedirectToAction("ClientDetail", new { id = model.Client.ClientID });
         }
-        public JsonResult GetEvents()
-        {
-            _ctx.Configuration.ProxyCreationEnabled = false;
-            var events = _ctx.Appointment.Where(x=>x.Expert.CompanyID==AccountController._compID).ToList();
-            return Json(events, JsonRequestBehavior.AllowGet);
-        }
+
         [HttpPost]
-        public JsonResult SaveEvent(Appointment data)
+        public IActionResult ClientDelete(int id)
         {
+            var client = _clientService.FindClient(x => x.ClientID == id && x.CompanyID == CompanyId);
+            if (client == null)
+            {
+                return NotFound();
+            }
+            // Appointments and contact records are removed by the database (cascade delete).
+            _clientService.DeleteClient(id);
+            TempData["Success"] = $"{client.Name} {client.Surname} ve randevuları silindi.";
+            return RedirectToAction("ListClientInfos");
+        }
 
-            _ctx.Configuration.ProxyCreationEnabled = false;
+        // The form starts with an empty date (no guessed default), so a missing value must be caught here.
+        private void ValidateBirthDate(string key, DateTime value)
+        {
+            if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Count > 0)
+            {
+                return;
+            }
+            if (value == default)
+            {
+                ModelState.AddModelError(key, "Doğum Tarihi alanı zorunludur.");
+            }
+            else if (value > DateTime.Today)
+            {
+                ModelState.AddModelError(key, "Doğum tarihi gelecekte olamaz.");
+            }
+            else if (value.Year < 1900)
+            {
+                ModelState.AddModelError(key, "Geçerli bir doğum tarihi giriniz.");
+            }
+        }
 
+        // Contacts are versioned: the current one is deactivated and the edited copy is added as the active one.
+        private void ReplaceContact(Contact input, int? clientId = null, short? expertId = null)
+        {
+            var current = _contactService.Find(x => x.IsActive == true
+                && (clientId != null ? x.ClientID == clientId : x.ExpertID == expertId));
+            if (current != null)
+            {
+                if (current.Email == input.Email && current.PhoneNumber1?.Trim() == input.PhoneNumber1?.Trim()
+                    && current.PhoneNumber2?.Trim() == input.PhoneNumber2?.Trim() && current.Address == input.Address)
+                {
+                    return;
+                }
+                current.IsActive = false;
+                _contactService.UpdateContact(current);
+            }
+            _contactService.AddContact(new Contact
+            {
+                ClientID = clientId,
+                ExpertID = expertId,
+                Address = input.Address,
+                PhoneNumber1 = input.PhoneNumber1,
+                PhoneNumber2 = input.PhoneNumber2,
+                Email = input.Email,
+                IsActive = true
+            });
+        }
 
-            var status = false;
+        #endregion
 
+        #region TAKVIM
+
+        [HttpGet]
+        public IActionResult AppointmentOpss(short? expertId)
+        {
+            DDLsVM model = new DDLsVM();
+            model.SelectedExpertId = expertId ?? 0;
+            model.ExpertsList = _ctx.Expert.Where(x => x.CompanyID == CompanyId).OrderBy(a => a.Name)
+                .Select(a => new SelectListItem { Text = a.Name + " " + a.Surname, Value = a.ExpertID.ToString() }).ToList();
+            model.ClientsList = _ctx.Client.Where(x => x.Continuity == true && x.CompanyID == CompanyId).OrderBy(a => a.Name)
+                .Select(a => new SelectListItem { Text = a.Name + " " + a.Surname, Value = a.ClientID.ToString() }).ToList();
+            return View(model);
+        }
+
+        // FullCalendar asks for the visible range only. It sends "2026-10-12T00:00:00+03:00"; appointments are stored
+        // as wall-clock times, so the offset is dropped instead of converting to UTC (the default DateTime binding).
+        [HttpGet]
+        public JsonResult GetEvents(string start, string end, short? expertId)
+        {
+            var query = OfficeAppointments;
+            if (DateTimeOffset.TryParse(start, out var rangeStart))
+            {
+                var from = rangeStart.DateTime;
+                query = query.Where(x => (x.EndTime ?? x.StartTime) >= from);
+            }
+            if (DateTimeOffset.TryParse(end, out var rangeEnd))
+            {
+                var to = rangeEnd.DateTime;
+                query = query.Where(x => x.StartTime < to);
+            }
+            if (expertId != null)
+            {
+                query = query.Where(x => x.ExpertID == expertId);
+            }
+            var events = query
+                .Select(x => new
+                {
+                    x.AppointmentID,
+                    x.ExpertID,
+                    x.ClientID,
+                    x.Subject,
+                    x.Description,
+                    x.StartTime,
+                    x.EndTime,
+                    x.ThemeColor,
+                    IsFullDay = x.IsFullDay == true,
+                    ExpertName = x.Expert.Name + " " + x.Expert.Surname,
+                    ClientName = x.Client != null ? x.Client.Name + " " + x.Client.Surname : null
+                })
+                .ToList();
+            return Json(events);
+        }
+
+        [HttpPost]
+        public JsonResult SaveEvent(AppointmentInput data)
+        {
+            string error = null;
+            if (string.IsNullOrWhiteSpace(data.Subject))
+            {
+                error = "Konu boş olamaz.";
+            }
+            else if (data.ExpertID == null || !_ctx.Expert.Any(x => x.ExpertID == data.ExpertID && x.CompanyID == CompanyId))
+            {
+                error = "Geçerli bir uzman seçiniz.";
+            }
+            else if (data.ClientID == null || !_ctx.Client.Any(x => x.ClientID == data.ClientID && x.CompanyID == CompanyId))
+            {
+                error = "Geçerli bir danışan seçiniz.";
+            }
+            else if (!data.IsFullDay && (data.EndTime == null || data.EndTime <= data.StartTime))
+            {
+                error = "Bitiş zamanı başlangıçtan sonra olmalıdır.";
+            }
+            if (error != null)
+            {
+                return Json(new { status = false, message = error });
+            }
+
+            var end = data.IsFullDay ? (DateTime?)null : data.EndTime;
+            if (!data.IsFullDay)
+            {
+                // An expert cannot be in two timed appointments at once.
+                var clash = _ctx.Appointment.Where(x => x.ExpertID == data.ExpertID && x.AppointmentID != data.AppointmentID
+                        && x.IsFullDay != true && x.StartTime < end && x.EndTime > data.StartTime)
+                    .Select(x => new { x.Subject, x.StartTime, x.EndTime }).FirstOrDefault();
+                if (clash != null)
+                {
+                    return Json(new { status = false, message = $"Uzmanın {clash.StartTime:HH:mm}–{clash.EndTime:HH:mm} arasında \"{clash.Subject}\" randevusu var." });
+                }
+            }
+
+            Appointment appointment;
             if (data.AppointmentID > 0)
             {
-                Appointment oldEvent = _ctx.Appointment.Where(x => x.AppointmentID == data.AppointmentID).FirstOrDefault();
-                if (oldEvent != null)
+                appointment = OfficeAppointments.FirstOrDefault(x => x.AppointmentID == data.AppointmentID);
+                if (appointment == null)
                 {
-
-                    oldEvent.ExpertID = data.ExpertID;
-                    oldEvent.ClientID = data.ClientID;
-                    oldEvent.Subject = data.Subject;
-                    oldEvent.Description = data.Description == null ? "" : data.Description;
-                    oldEvent.ThemeColor = data.ThemeColor;
-                    oldEvent.IsFullDay = data.IsFullDay;
-                    oldEvent.EndTime = data.EndTime;
-                    oldEvent.StartTime = data.StartTime;
+                    return Json(new { status = false, message = "Randevu bulunamadı." });
                 }
             }
             else
             {
-                _ctx.Appointment.Add(data);
+                appointment = new Appointment();
+                _ctx.Appointment.Add(appointment);
             }
+            appointment.ExpertID = data.ExpertID;
+            appointment.ClientID = data.ClientID;
+            appointment.Subject = data.Subject.Trim();
+            appointment.Description = data.Description ?? "";
+            appointment.ThemeColor = string.IsNullOrWhiteSpace(data.ThemeColor) ? AppointmentColors.Default : data.ThemeColor;
+            appointment.IsFullDay = data.IsFullDay;
+            appointment.StartTime = data.IsFullDay ? data.StartTime.Date : data.StartTime;
+            appointment.EndTime = end;
             _ctx.SaveChanges();
-            status = true;
 
-            return new JsonResult { Data = new { status = status } };
-
+            return Json(new { status = true, id = appointment.AppointmentID });
         }
 
         [HttpPost]
@@ -339,80 +513,15 @@ namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Controllers
         {
             var status = false;
 
-            using (AppointmentDBContext dc = new AppointmentDBContext())
+            Appointment deletedEvent = OfficeAppointments.FirstOrDefault(x => x.AppointmentID == id);
+            if (deletedEvent != null)
             {
-                Appointment deletedEvent = dc.Appointment.Where(x => x.AppointmentID == id).FirstOrDefault();
-                if (deletedEvent != null)
-                {
-                    dc.Appointment.Remove(deletedEvent);
-                    dc.SaveChanges();
-                    status = true;
-                }
+                _ctx.Appointment.Remove(deletedEvent);
+                _ctx.SaveChanges();
+                status = true;
             }
-            return new JsonResult { Data = new { status = status } };
+            return Json(new { status = status });
         }
         #endregion
-        public ActionResult ExpertInfo()
-        {
-            return View();
-        }
-        [HttpGet]
-        public ActionResult ListClientInfos()
-        {
-            using (AppointmentDBContext ctx = new AppointmentDBContext())
-            {
-                var ClientInfos = (from c in ctx.Client
-                                   join co in ctx.Contact on c.ClientID equals co.ClientID
-                                   where c.ClientID != 8 && co.IsActive == true && c.CompanyID==AccountController._compID
-                                   select new ClientInfosDTO
-                                   {
-                                       ID = c.ClientID,
-                                       DanisanTuru = (DateTime.Now.Year - c.BirthDate.Year) > 18 ? "Yetişkin" : "Çocuk",
-                                       TCKimlik = c.TcKimlik,
-                                       AdSoyad = c.Name+" "+c.Surname,
-                                       //Soyad = c.Surname,
-                                       Telno = co.PhoneNumber1,
-                                       Adres = co.Address,
-                                       DevamDurumu = c.Continuity,
-                                   }).OrderBy(x=>x.AdSoyad).ToList();
-                return View(ClientInfos);
-            }
-
-
-        }
-        public ActionResult ListExpertInfos()
-        {
-            using (AppointmentDBContext ctx = new AppointmentDBContext())
-            {
-                var ExpertInfos = (from c in ctx.Expert
-                                   join co in ctx.Contact on c.ExpertID equals co.ExpertID
-                                   where c.ExpertID != 1 && co.IsActive == true && c.CompanyID==AccountController._compID
-
-                                   select new ExpertInfosDTO
-                                   {
-                                       ID = c.ExpertID,
-                                       Uzmanlik = c.Profession,
-                                       AdSoyad = c.Name+" "+c.Surname ,
-                                       //Soyad = c.Surname,
-                                       Telno = co.PhoneNumber1,
-                                       Not = c.Note
-                                   }).OrderBy(x => x.AdSoyad).ToList();
-                return View(ExpertInfos);
-            }
-
-
-        }
-        [HttpGet]
-        public ActionResult ClientDelete(int id)
-        {
-            _clientService.DeleteClient(id);
-            return RedirectToAction("ListClientInfos");
-        }
-        [HttpGet]
-        public ActionResult ExpertDelete(short id)
-        {
-            _expertService.DeleteExpert(id);
-            return RedirectToAction("ListExpertInfos");
-        }
     }
 }

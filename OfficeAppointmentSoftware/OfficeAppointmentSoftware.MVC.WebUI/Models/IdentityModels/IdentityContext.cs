@@ -1,23 +1,13 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
-using OfficeAppointmentSoftware.MVC.WebUI.Models.Configurations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace OfficeAppointmentSoftware.MVC.WebUI.Models.IdentityModels
 {
-    public class IdentityContext : IdentityDbContext<AppUser>
+    // Shares the AppointmentDB database with AppointmentDBContext; each context has its own migrations.
+    public class IdentityContext : IdentityDbContext<AppUser, AppRole, string>
     {
-        public IdentityContext() : base("AppointmentDBContext")
+        public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
         {
-           // Database.Connection.ConnectionString = @"server=BETUL-WINDOWS;Database=AppointmentDBson;UID=sa; PWD=12345";
-            System.Data.Entity.Database.SetInitializer(new IdentityContextInitializer());
-        }
-
-        public static IdentityContext Create()
-        {
-            return new IdentityContext();
         }
     }
 }

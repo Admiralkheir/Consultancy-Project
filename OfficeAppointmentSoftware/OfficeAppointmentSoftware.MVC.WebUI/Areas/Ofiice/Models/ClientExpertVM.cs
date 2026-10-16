@@ -1,28 +1,38 @@
 ﻿using OfficeAppointmentSoftware.Entities.Entities;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Web;
 
 namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Models
 {
+    // Office dashboard.
     public class ClientExpertVM
     {
+        public Company Company { get; set; }
         public int ClientTotal { get; set; }
         public int ExpertsTotal { get; set; }
+        public int AppsToday { get; set; }
+        public int AppsThisWeek { get; set; }
+        public List<AgendaItemVM> TodaysAppointments { get; set; } = new();
+        public List<AgendaItemVM> UpcomingAppointments { get; set; } = new();
+        public List<AgeGroupVM> AgeGroups { get; set; } = new();
+    }
 
-        public int AppsTotal { get; set; }
-        public IEnumerable<Appointment> AppsTotalDaily { get; set; }
-        public IEnumerable<Expert> AppointmentsExpert { get; set; }
-        public IEnumerable<Client> AppointmentsClient { get; set; }
-        public decimal AppsPercent { get; set; }
-        public decimal Kid2 { get; set; }
-        public decimal Young { get; set; }
-        public decimal Adult { get; set; }
+    public class AgeGroupVM
+    {
+        public string Name { get; set; }
+        public string Range { get; set; }
+        public int Count { get; set; }
+        public decimal Percent { get; set; }
+    }
 
-        public decimal Old { get; set; }
-
-        public Company Company { get; set; }
+    // An appointment as shown in lists (dashboard, client/expert detail).
+    public class AgendaItemVM
+    {
+        public int AppointmentID { get; set; }
+        public string Subject { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime? End { get; set; }
+        public bool IsFullDay { get; set; }
+        public string ExpertName { get; set; }
+        public string ClientName { get; set; }
+        public string Color { get; set; }
     }
 }

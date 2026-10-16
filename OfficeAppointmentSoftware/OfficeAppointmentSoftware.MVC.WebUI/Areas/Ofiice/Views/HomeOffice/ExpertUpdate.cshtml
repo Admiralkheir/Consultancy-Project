@@ -1,217 +1,120 @@
 ﻿@model ExpertVM
 @{
-    ViewBag.Title = "ExpertUpdate";
+    var isNew = Model.Expert.ExpertID == 0;
+    var fullName = (Model.Expert.Name + " " + Model.Expert.Surname).Trim();
+    ViewData["Title"] = isNew ? "Yeni Uzman" : "Uzmanı Düzenle";
 }
 
-<div class="row">
-    <i class="fas fa-pen fa-2x col-md-1"></i>
-    <h3 style="color:#4e73df" class="col-md-3"> Uzman Güncelleme </h3>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="ListExpertInfos">Uzmanlar</a></li>
+        @if (!isNew)
+        {
+            <li class="breadcrumb-item"><a asp-action="ExpertDetail" asp-route-id="@Model.Expert.ExpertID">@fullName</a></li>
+        }
+        <li class="breadcrumb-item active" aria-current="page">@(isNew ? "Yeni" : "Düzenle")</li>
+    </ol>
+</nav>
 
-
-    <div class="col-md-5"></div>
-    <div class="md-form mt-0 col-md-3">
-
+<div class="page-header">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p class="lead-text">"İsteğe bağlı" yazmayan tüm alanlar zorunludur.</p>
     </div>
-
 </div>
 
-<hr />
-<div class="row">
-    <div class="col-md-12 mt-2">
-        @using (Html.BeginForm("ExpertUpdate", "HomeOffice", new { @role = "form", @enctype = "multipart/form-data" }))
-        {
-            <div class="form-body">
-                <div class="portlet-body form">
-                    @Html.HiddenFor(x => x.Expert.ExpertID)
-                    @Html.HiddenFor(x => x.Expert.CompanyID)
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label">Fotoğraf</label>:
-                            <div class="col-md-8">
-                                <input type="file" name="file">
-                            </div>
-                            <div class="col-md-2"></div>
+<form asp-action="ExpertUpdate" method="post" enctype="multipart/form-data" novalidate>
+    <input asp-for="Expert.ExpertID" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="form-section-title">Kişisel bilgiler</div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        @if (!string.IsNullOrEmpty(Model.Expert.PhotoURL))
+                        {
+                            <img id="photoPreview" class="photo-preview" src="~/Areas/Ofiice/image/@Model.Expert.PhotoURL" alt="" />
+                        }
+                        else
+                        {
+                            <img id="photoPreview" class="photo-preview d-none" alt="" />
+                            <span id="photoPlaceholder" class="avatar avatar-lg bg-secondary-subtle text-body-secondary"><i class="bi bi-camera"></i></span>
+                        }
+                        <div>
+                            <label class="form-label" for="photoFile">Fotoğraf <span class="text-body-secondary small fw-normal">(isteğe bağlı)</span></label>
+                            <input class="form-control form-control-sm" type="file" name="file" id="photoFile" accept="image/*" data-preview="#photoPreview" data-preview-placeholder="#photoPlaceholder" />
+                            @Html.ValidationMessage("file")
+                            <div class="form-text">PNG, JPG veya GIF, en fazla 500 KB.</div>
                         </div>
                     </div>
-
-
-                    <!-- BEGIN FORM-->
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Ad *</label>:
-                            <div class="col-md-5">
-                                @Html.TextBoxFor(x => x.Expert.Name, new { @class = "form-control", type = "text", placeholder = "Uzman Adı Giriniz" })
-
-                            </div>
-                            <div class="col-md-5"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Expert.Name" class="form-label"></label>
+                            <input asp-for="Expert.Name" class="form-control" />
+                            <span asp-validation-for="Expert.Name"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Expert.Surname" class="form-label"></label>
+                            <input asp-for="Expert.Surname" class="form-control" />
+                            <span asp-validation-for="Expert.Surname"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Expert.Profession" class="form-label"></label>
+                            <input asp-for="Expert.Profession" class="form-control" placeholder="örn. Klinik Psikolog" list="professions" />
+                            <datalist id="professions">
+                                <option value="Psikolog"></option>
+                                <option value="Klinik Psikolog"></option>
+                                <option value="Psikolojik Danışman"></option>
+                                <option value="Aile Danışmanı"></option>
+                                <option value="Çocuk ve Ergen Psikoloğu"></option>
+                                <option value="Psikiyatrist"></option>
+                            </datalist>
+                            <span asp-validation-for="Expert.Profession"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Expert.BirthDate" class="form-label"></label>
+                            <input asp-for="Expert.BirthDate" type="date" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")" value="@(Model.Expert.BirthDate == default ? "" : Model.Expert.BirthDate.ToString("yyyy-MM-dd"))" />
+                            <span asp-validation-for="Expert.BirthDate"></span>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Soyad *</label>:
-                            <div class="col-md-5">
-                                @Html.TextBoxFor(x => x.Expert.Surname, new { @class = "form-control", type = "text", placeholder = "Uzman Soyadı Giriniz" })
-                            </div>
-                            <div class="col-md-5"></div>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Doğum Tarihi *</label>:
-                            <div class="col-md-4">
-                                @Html.TextBoxFor(x => x.Expert.BirthDate, new
-                           {
-                               type = "date-local",
-                               @class="form-control"
-                           })
-
-                            </div>
-                            <div class="col-md-6"></div>
-                        </div>
-
-                    </div>
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Uzmanlık *</label>:
-                            <div class="col-md-5">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-user-tie"></i>
-                                    </span>
-
-                                    @Html.TextBoxFor(x => x.Expert.Profession, new { type = "text", @class = "form-control", placeholder = "Uzmanlık Alanı Giriniz" })
-                                </div>
-                            </div>
-                            <div class="col-md-5"></div>
-                        </div>
-                    </div>
-
-
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Fiyat Politikası *</label>:
-                            <div class="col-md-8">
-                                @Html.TextAreaFor(x => x.Expert.WagePolicy, new { @class = "form-control summernote", placeholder = "Fiyat Politakası" })
-                            </div>
-                            <div class="col-md-2"></div>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Not </label>:
-                            <div class="col-md-8">
-                                @Html.TextAreaFor(x => x.Expert.Note, new { @class = "form-control", type = "text", placeholder = "Not Giriniz", height = "150px" })
-
-                            </div>
-                            <div class="col-md-4"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Email Adres </label>:
-                            <div class="col-md-5">
-
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-envelope"></i>
-                                    </span>
-                                    @Html.TextBoxFor(x => x.Contact.Email, new { type = "text", @class = "form-control", placeholder = "Mail Giriniz" })
-                                </div>
-
-                            </div>
-                            <div class="col-md-5"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Telefon Numarası *</label>:
-                            <div class="col-md-5">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-phone" aria-hidden="true"></i>
-                                    </span>
-
-                                    @Html.TextBoxFor(x => x.Contact.PhoneNumber1, new { type = "text", @class = "form-control", placeholder = "05999911122" })
-
-                                </div>
-                                <div class="col-md-5"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">İkincil Telefon Numarası </label>:
-
-                            <div class="col-md-5">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-phone" aria-hidden="true"></i>
-                                    </span>
-                                    @Html.TextBoxFor(x => x.Contact.PhoneNumber2, new { type = "text", @class = "form-control", placeholder = "05999911122" })
-                                </div>
-                            </div>
-                            <div class="col-md-5"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <label class="col-md-2 control-label clearfix">Adres </label>:
-                            <div class="col-md-8">
-                                @Html.TextAreaFor(x => x.Contact.Address, new { @class = "form-control", type = "text", placeholder = "Adres Giriniz", height = "150px" })
-
-                            </div>
-                            <div class="col-md-4"></div>
-                        </div>
-                    </div>
-
-
-                    <!-- #endregion -->
-
-                    <div class="form-group ">
-                        <div class="row">
-                            <div class="col-md-4">
-                            </div>
-                            <div class="col-md-8">
-                                <button type="submit" class="btn btn-primary">Uzman Güncelle</button>
-                                @Html.ActionLink("İptal", "ListExpertInfos", "HomeOffice", new { @class = "btn btn-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <!-- END FORM-->
                 </div>
             </div>
-
-        }
-
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="form-section-title">İletişim</div>
+                    <partial name="_ContactFields" for="Contact" />
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="form-section-title">Çalışma bilgileri</div>
+                    <div class="mb-3">
+                        <label asp-for="Expert.WagePolicy" class="form-label"></label>
+                        <textarea asp-for="Expert.WagePolicy" class="form-control" rows="5" maxlength="450" placeholder="örn. Bireysel seans 50 dk: 1.500 ₺" data-counter="#wageCount"></textarea>
+                        <div class="d-flex"><span asp-validation-for="Expert.WagePolicy"></span><small class="text-body-secondary ms-auto" id="wageCount"></small></div>
+                    </div>
+                    <div>
+                        <label asp-for="Expert.Note" class="form-label"></label> <span class="text-body-secondary small">(isteğe bağlı)</span>
+                        <textarea asp-for="Expert.Note" class="form-control" rows="3" maxlength="450"></textarea>
+                        <span asp-validation-for="Expert.Note"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-icon justify-content-center"><i class="bi bi-check2"></i> @(isNew ? "Uzmanı Kaydet" : "Değişiklikleri Kaydet")</button>
+                @if (isNew)
+                {
+                    <a class="btn btn-light" asp-action="ListExpertInfos">Vazgeç</a>
+                }
+                else
+                {
+                    <a class="btn btn-light" asp-action="ExpertDetail" asp-route-id="@Model.Expert.ExpertID">Vazgeç</a>
+                }
+            </div>
+        </div>
     </div>
-</div>
-
-
-@section scripts {
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.summernote').summernote({
-                height: 150
-
-            })
-
-        })
-
-
-    </script>
-
-}
+</form>

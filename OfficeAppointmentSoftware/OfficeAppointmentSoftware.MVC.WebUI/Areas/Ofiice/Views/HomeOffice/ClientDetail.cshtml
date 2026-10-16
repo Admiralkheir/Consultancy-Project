@@ -1,0 +1,79 @@
+@model ClientDetailVM
+@{
+    var fullName = Model.Client.Name + " " + Model.Client.Surname;
+    ViewData["Title"] = fullName;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="ListClientInfos">Danışanlar</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@fullName</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <span class="avatar avatar-lg" style="background:@UiHelper.AvatarColor(fullName)">@UiHelper.Initials(fullName)</span>
+        <div>
+            <h1>@fullName</h1>
+            <p class="lead-text">
+                @AgeHelper.Group(Model.Age) · @Model.Age yaşında
+                @if (Model.Client.Continuity)
+                {
+                    <span class="badge rounded-pill text-bg-success bg-opacity-75 ms-1">Aktif</span>
+                }
+                else
+                {
+                    <span class="badge rounded-pill text-bg-secondary ms-1">Pasif</span>
+                }
+            </p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary btn-icon" asp-action="ClientUpdate" asp-route-id="@Model.Client.ClientID"><i class="bi bi-pencil"></i> Düzenle</a>
+        <form asp-action="ClientDelete" asp-route-id="@Model.Client.ClientID" method="post"
+              data-confirm="@fullName ve tüm randevuları kalıcı olarak silinecek. Bu işlem geri alınamaz." data-confirm-title="Danışan silinsin mi?">
+            <button type="submit" class="btn btn-outline-danger btn-icon"><i class="bi bi-trash"></i> Sil</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header"><span><i class="bi bi-person-vcard me-2 text-primary"></i>Kişisel bilgiler</span></div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>TC Kimlik No</dt><dd class="font-monospace">@Model.Client.TcKimlik</dd>
+                    <dt>Doğum tarihi</dt><dd>@UiHelper.Date(Model.Client.BirthDate)</dd>
+                    <dt>Telefon</dt><dd>@(Model.Contact?.PhoneNumber1?.Trim() ?? "—")@if (!string.IsNullOrWhiteSpace(Model.Contact?.PhoneNumber2)) {<br />@Model.Contact.PhoneNumber2.Trim()}</dd>
+                    <dt>E-posta</dt><dd>@if (Model.Contact?.Email != null) {<a href="mailto:@Model.Contact.Email">@Model.Contact.Email</a>} else {<span>—</span>}</dd>
+                    <dt>Adres</dt><dd>@(Model.Contact?.Address ?? "—")</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><span><i class="bi bi-journal-text me-2 text-primary"></i>Başvuru</span></div>
+            <div class="card-body">
+                <div class="form-section-title mb-1">Problem</div>
+                <p style="white-space:pre-line">@Model.Client.Problem</p>
+                <div class="form-section-title mb-1">Not</div>
+                <p class="mb-0 text-body-secondary" style="white-space:pre-line">@(string.IsNullOrWhiteSpace(Model.Client.Note) ? "—" : Model.Client.Note)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="bi bi-calendar3 me-2 text-primary"></i>Randevu geçmişi</span>
+                @if (Model.Appointments.Any())
+                {
+                    <span class="small text-body-secondary">Son @Model.Appointments.Count kayıt</span>
+                }
+            </div>
+            <div class="card-body pt-0">
+                <partial name="_AgendaList" model="Model.Appointments" view-data='new ViewDataDictionary(ViewData) { ["ShowDate"] = true, ["EmptyText"] = "Bu danışanın randevusu yok." }' />
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,16 +1,13 @@
 ﻿using OfficeAppointmentSoftware.Entities.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OfficeAppointmentSoftware.BLL.Abstracts.AdminServices
 {
-  public interface IBannerService
+    public interface IBannerService
     {
-        void BannerAdd(Banner banner) ;
+        void BannerAdd(Banner banner);
         void BannerUpdate(Banner banner);
         Banner BannerGet(short id);
+        // The site shows a single banner: the one with the lowest id, or null when there is none.
+        Banner BannerGetDefault();
     }
 }

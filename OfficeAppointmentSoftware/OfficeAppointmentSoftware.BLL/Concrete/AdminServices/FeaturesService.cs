@@ -1,21 +1,16 @@
 ﻿using OfficeAppointmentSoftware.BLL.Abstracts.AdminServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OfficeAppointmentSoftware.DAL.Repositories.Abstracts.AdminRepositories;
 using OfficeAppointmentSoftware.Entities.Entities;
-using OfficeAppointmentSoftware.DAL.Repositories.Concretes.AdminRepositories;
 using System.Linq.Expressions;
 
 namespace OfficeAppointmentSoftware.BLL.Concrete.AdminServices
 {
-    public class FeaturesService : FeaturesRepository, IFeaturesService
+    public class FeaturesService : IFeaturesService
     {
-        FeaturesRepository _featuresRepository;
-        public FeaturesService()
+        private readonly IFeaturesRepository _featuresRepository;
+        public FeaturesService(IFeaturesRepository featuresRepository)
         {
-            _featuresRepository = new FeaturesRepository();
+            _featuresRepository = featuresRepository;
         }
         public void AddFeatures(Features feature)
         {

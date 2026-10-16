@@ -1,88 +1,40 @@
-﻿@model IEnumerable<Features>
+﻿@model List<Features>
 @{
-    ViewBag.Title = "FeaturesList";
-    Layout = "~/Areas/Admin/Views/Shared/_ AdminLayout.cshtml";
+    ViewData["Title"] = "Hizmetler";
 }
 
-<h2>FeaturesList</h2>
-
-<div class="container">
-    <div class="table-responsive-vertical">
-        <table class="table table-bordered table-striped table-hover table-mc-light-blue">
-            <thead>
-                <tr>
-                    <th>Genel Açıklama</th>
-                    <th>Açıklama</th>
-                    <th>Başlık</th>
-                    @*<th>Resim Yolu</th>*@
-                    <th>Sil / Güncelle</th>
-                </tr>
-            </thead>
-            <tbody>
-                @*<tr>
-                    <td data-title="No">1</td>
-                    <td data-title="Açıklama">Kral</td>
-                    <td data-title="Başlık">Adam Kral</td>
-                    <td data-title="Resim Yolu">gjhmabj</td>
-                    <td data-title="Sil / Güncelle">fffff</td>
-                </tr>*@
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td data-title="Genel Açıklama">@item.GeneralDescription</td>
-                        <td data-title="Tanım">@item.Description</td>
-                        <td data-title="Başlık">@item.Title</td>
-                        <td data-title="Sil / Güncelle">@Html.ActionLink("Sil", "FeaturesDelete", new { id = item.FeaturesID }, new { @class = "btn btn-danger e" }) &nbsp; @Html.ActionLink("Güncelle", "FeaturesUpdate", new { id = item.FeaturesID }, new { @class = "btn btn-warning   " })</td>
-                    </tr>
-                }
-                @*<tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>*@
-            </tbody>
-        </table>
+<div class="page-header">
+    <div>
+        <h1>Hizmetler</h1>
+        <p class="lead-text">Ana sayfadaki "Ne yapıyoruz?" bölümünde listelenir.</p>
     </div>
+    <a class="btn btn-primary btn-icon" asp-action="FeaturesAdd"><i class="bi bi-plus-lg"></i> Yeni Hizmet</a>
 </div>
 
-@*<table class="table">
-    <tr>
-        <th>Genel Açıklama</th>
-        <th>Açıklama</th>
-        <th>Başlık</th>
-        <th>Sil / Güncelle</th>
-    </tr>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.GeneralDescription</td>
-            <td>@item.Description</td>
-            <td>@item.Title</td>
-            <td>@Html.ActionLink("Sil", "FeaturesDelete", new { id = item.FeaturesID }, new { @class = "btn btn-danger glyphicon glyphicon-remove" }) &nbsp; @Html.ActionLink("Güncelle", "FeaturesUpdate", new { id = item.FeaturesID }, new { @class = "btn btn-warning  glyphicon glyphicon-user " })</td>
-        </tr>
-    }
-
-</table>*@
+@if (!Model.Any())
+{
+    <div class="card"><div class="empty-state"><i class="bi bi-stars"></i>Henüz hizmet eklenmemiş; ana sayfada bu bölüm gizlenir.</div></div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h6 fw-bold">@item.Title</h2>
+                        <p class="text-body-secondary small flex-grow-1">@item.Description</p>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-light flex-fill" asp-action="FeaturesUpdate" asp-route-id="@item.FeaturesID"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+                            <form asp-action="FeaturesDelete" asp-route-id="@item.FeaturesID" method="post"
+                                  data-confirm="&quot;@item.Title&quot; ana sayfadan kaldırılacak." data-confirm-title="Hizmet silinsin mi?">
+                                <button type="submit" class="btn btn-sm btn-light text-danger" title="Sil"><i class="bi bi-trash"></i><span class="visually-hidden">Sil</span></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

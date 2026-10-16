@@ -1,0 +1,101 @@
+@model List<OfficeListItemVM>
+@{
+    ViewData["Title"] = "Ofisler";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Ofisler</h1>
+        <p class="lead-text">Sistemi kullanan danışmanlık ofisleri ve giriş hesapları</p>
+    </div>
+    <a class="btn btn-primary btn-icon" asp-action="SignUp"><i class="bi bi-building-add"></i> Yeni Ofis</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-4">
+        <div class="card"><div class="card-body stat-card">
+            <span class="stat-icon tone-indigo"><i class="bi bi-buildings"></i></span>
+            <div><div class="stat-value">@Model.Count</div><div class="stat-label">Ofis</div></div>
+        </div></div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card"><div class="card-body stat-card">
+            <span class="stat-icon tone-teal"><i class="bi bi-person-badge"></i></span>
+            <div><div class="stat-value">@Model.Sum(x => x.ExpertCount)</div><div class="stat-label">Uzman</div></div>
+        </div></div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card"><div class="card-body stat-card">
+            <span class="stat-icon tone-amber"><i class="bi bi-people"></i></span>
+            <div><div class="stat-value">@Model.Sum(x => x.ClientCount)</div><div class="stat-label">Aktif danışan</div></div>
+        </div></div>
+    </div>
+</div>
+
+<div class="card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-buildings"></i>
+            <p class="mb-3">Henüz ofis yok. İlk ofisi oluşturup giriş bilgilerini ofise iletin.</p>
+            <a class="btn btn-primary btn-icon" asp-action="SignUp"><i class="bi bi-building-add"></i> Yeni Ofis</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Ofis</th>
+                        <th>Kullanıcı adı</th>
+                        <th>Paket</th>
+                        <th class="d-none d-lg-table-cell">İletişim</th>
+                        <th class="text-end">Uzman</th>
+                        <th class="text-end">Danışan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var office in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(office.LogoURL))
+                                    {
+                                        <img class="avatar" src="~/Areas/Admin/Files/Images/@office.LogoURL" alt="" style="border-radius:.6rem" />
+                                    }
+                                    else
+                                    {
+                                        <span class="avatar" style="border-radius:.6rem;background:@UiHelper.AvatarColor(office.CompanyName)">@UiHelper.Initials(office.CompanyName)</span>
+                                    }
+                                    <div>
+                                        <div class="fw-semibold">@office.CompanyName</div>
+                                        <div class="small text-body-secondary">@office.OwnerName</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (office.UserName != null)
+                                {
+                                    <code>@office.UserName</code>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-warning">Hesap yok</span>
+                                }
+                            </td>
+                            <td><span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">@office.PlanName</span></td>
+                            <td class="d-none d-lg-table-cell small">
+                                <div>@office.Email</div>
+                                <div class="text-body-secondary">@office.Phone</div>
+                            </td>
+                            <td class="text-end">@office.ExpertCount</td>
+                            <td class="text-end">@office.ClientCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,20 +1,15 @@
 ﻿using OfficeAppointmentSoftware.BLL.Abstracts.AdminServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OfficeAppointmentSoftware.DAL.Repositories.Abstracts.AdminRepositories;
 using OfficeAppointmentSoftware.Entities.Entities;
-using OfficeAppointmentSoftware.DAL.Repositories.Concretes.AdminRepositories;
 
 namespace OfficeAppointmentSoftware.BLL.Concrete.AdminServices
 {
-    public class BannerService : BannerRepository, IBannerService
+    public class BannerService : IBannerService
     {
-        BannerRepository _bannerRepository;
-        public BannerService()
+        private readonly IBannerRepository _bannerRepository;
+        public BannerService(IBannerRepository bannerRepository)
         {
-            _bannerRepository = new BannerRepository();
+            _bannerRepository = bannerRepository;
         }
         public void BannerAdd(Banner banner)
         {
@@ -24,6 +19,11 @@ namespace OfficeAppointmentSoftware.BLL.Concrete.AdminServices
         public Banner BannerGet(short id)
         {
             return _bannerRepository.FindById(id);
+        }
+
+        public Banner BannerGetDefault()
+        {
+            return _bannerRepository.Select().OrderBy(x => x.BannerID).FirstOrDefault();
         }
 
         public void BannerUpdate(Banner banner)

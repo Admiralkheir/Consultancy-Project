@@ -1,22 +1,16 @@
 ﻿using OfficeAppointmentSoftware.BLL.Abstracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OfficeAppointmentSoftware.DAL.Repositories.Abstracts;
 using OfficeAppointmentSoftware.Entities.Entities;
 using System.Linq.Expressions;
-using OfficeAppointmentSoftware.DAL.Repositories.Concretes;
 
 namespace OfficeAppointmentSoftware.BLL.Concrete
 {
-    public class ClientService : ClientRepository, IClientService
+    public class ClientService : IClientService
     {
-        ClientRepository _clientRepository;
-        public ClientService()
+        private readonly IClientRepository _clientRepository;
+        public ClientService(IClientRepository clientRepository)
         {
-            _clientRepository = new ClientRepository();
-
+            _clientRepository = clientRepository;
         }
         public void AddClient(Client client)
         {

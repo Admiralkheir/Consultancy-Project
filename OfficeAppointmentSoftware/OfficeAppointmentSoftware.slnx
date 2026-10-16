@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="OfficeAppointmentSoftware.BLL/OfficeAppointmentSoftware.BLL.csproj" />
+  <Project Path="OfficeAppointmentSoftware.DAL/OfficeAppointmentSoftware.DAL.csproj" />
+  <Project Path="OfficeAppointmentSoftware.Entities/OfficeAppointmentSoftware.Entities.csproj" />
+  <Project Path="OfficeAppointmentSoftware.MVC.WebUI/OfficeAppointmentSoftware.MVC.WebUI.csproj" />
+</Solution>

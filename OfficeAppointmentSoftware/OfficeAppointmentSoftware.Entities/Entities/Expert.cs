@@ -4,7 +4,6 @@ namespace OfficeAppointmentSoftware.Entities.Entities
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("Expert")]
     public partial class Expert
@@ -25,23 +24,29 @@ namespace OfficeAppointmentSoftware.Entities.Entities
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Ad")]
         public string Name { get; set; }
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Soyad")]
         public string Surname { get; set; }
 
+        [Display(Name = "Doğum Tarihi")]
         public DateTime BirthDate { get; set; }
 
         [Required]
         [StringLength(100)]
+        [Display(Name = "Uzmanlık Alanı")]
         public string Profession { get; set; }
 
         [Required]
         [StringLength(450)]
+        [Display(Name = "Fiyat Politikası")]
         public string WagePolicy { get; set; }
 
         [StringLength(450)]
+        [Display(Name = "Not")]
         public string Note { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

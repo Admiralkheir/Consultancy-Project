@@ -1,0 +1,33 @@
+@model Contact
+@* Rendered with <partial name="_ContactFields" for="Contact" />, so field names get the right prefix. *@
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="PhoneNumber1" class="form-label"></label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+            <input asp-for="PhoneNumber1" value="@Model?.PhoneNumber1?.Trim()" class="form-control" type="tel" placeholder="05551234567" autocomplete="tel" />
+        </div>
+        <span asp-validation-for="PhoneNumber1"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="PhoneNumber2" class="form-label"></label> <span class="text-body-secondary small">(isteğe bağlı)</span>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-telephone-plus"></i></span>
+            <input asp-for="PhoneNumber2" value="@Model?.PhoneNumber2?.Trim()" class="form-control" type="tel" />
+        </div>
+        <span asp-validation-for="PhoneNumber2"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Email" class="form-label"></label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+            <input asp-for="Email" class="form-control" type="email" placeholder="ornek@eposta.com" autocomplete="email" />
+        </div>
+        <span asp-validation-for="Email"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Address" class="form-label"></label>
+        <textarea asp-for="Address" class="form-control" rows="2" maxlength="250"></textarea>
+        <span asp-validation-for="Address"></span>
+    </div>
+</div>

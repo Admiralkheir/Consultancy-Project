@@ -1,60 +1,76 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Owin.Security;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using OfficeAppointmentSoftware.MVC.WebUI.Models;
 using OfficeAppointmentSoftware.MVC.WebUI.Models.IdentityModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Web;
-using System.Web.Mvc;
 
 namespace OfficeAppointmentSoftware.MVC.WebUI.Controllers
 {
     public class AccountController : Controller
     {
-        public static int? _compID;
-        private UserManager<AppUser> userManager;
-        private RoleManager<AppRole> roleManager;
-        public AccountController()
+        private readonly UserManager<AppUser> userManager;
+        private readonly SignInManager<AppUser> signInManager;
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
-            IdentityContext db = new IdentityContext();
-            UserStore<AppUser> userStore = new UserStore<AppUser>(db);//bir identity tablosu user ile ilgili işlemler
-            userManager = new UserManager<AppUser>(userStore);
-            RoleStore<AppRole> roleStore = new RoleStore<AppRole>(db);
-            roleManager = new RoleManager<AppRole>(roleStore);
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
+
         [HttpGet]
-        public ActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
-            return View();
+            // Signed-in users (also those sent here by "access denied") go to their own panel.
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToHome();
+            }
+            ViewBag.ReturnUrl = returnUrl;
+            return View(new LoginVM());
         }
 
         [HttpPost]
-        public ActionResult Login(LoginVM model)
+        public async Task<IActionResult> Login(LoginVM model, string returnUrl = null)
         {
-            AppUser user = userManager.Find(model.UserName, model.Password);
+            ViewBag.ReturnUrl = returnUrl;
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            AppUser user = await userManager.FindByNameAsync(model.UserName);
             if (user != null)
             {
-                _compID=user.CompID;
-                IAuthenticationManager authManager = HttpContext.GetOwinContext().Authentication;
-                ClaimsIdentity identity = userManager.CreateIdentity(user, "ApplicationCookie");
-                AuthenticationProperties authProps = new AuthenticationProperties();
-                authManager.SignIn(authProps, identity);
-                if (user.CompID==null)
+                // The company id travels in the auth cookie as a claim (see AppUserClaimsPrincipalFactory).
+                var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
                 {
-                    return RedirectToAction("Banner", "Admin/Admin");
-                }
-                else
-                {
-                    return RedirectToAction("Index", "Ofiice/HomeOffice");
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return LocalRedirect(returnUrl);
+                    }
+                    return RedirectToHome(user);
                 }
             }
 
-
-            return View();
+            ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı.");
+            model.Password = null;
+            return View(model);
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        private IActionResult RedirectToHome(AppUser user = null)
+        {
+            var isAdmin = user != null ? user.CompID == null : User.IsInRole("Admin");
+            return isAdmin
+                ? RedirectToAction("Index", "Admin", new { area = "Admin" })
+                : RedirectToAction("Index", "HomeOffice", new { area = "Ofiice" });
+        }
     }
 }

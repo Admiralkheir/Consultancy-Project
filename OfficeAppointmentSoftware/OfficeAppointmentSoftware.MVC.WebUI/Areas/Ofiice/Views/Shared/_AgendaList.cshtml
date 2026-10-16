@@ -1,0 +1,48 @@
+@model IEnumerable<AgendaItemVM>
+@{
+    var showDate = ViewData["ShowDate"] as bool? ?? false;
+    var emptyText = ViewData["EmptyText"] as string ?? "Randevu yok.";
+}
+@if (!Model.Any())
+{
+    <div class="empty-state py-4"><i class="bi bi-calendar-x"></i>@emptyText</div>
+}
+else
+{
+    <div>
+        @foreach (var item in Model)
+        {
+            <div class="agenda-item">
+                <div class="agenda-time">
+                    @if (showDate)
+                    {
+                        <small>@UiHelper.ShortDate(item.Start) · @UiHelper.DayName(item.Start)</small>
+                    }
+                    @if (item.IsFullDay)
+                    {
+                        <span>Tüm gün</span>
+                    }
+                    else
+                    {
+                        <span>@UiHelper.Time(item.Start)</span>
+                        @if (item.End != null)
+                        {
+                            <small>– @UiHelper.Time(item.End.Value)</small>
+                        }
+                    }
+                </div>
+                <span class="agenda-bar" style="background:@(item.Color ?? "#6366f1")"></span>
+                <div class="min-w-0">
+                    <div class="agenda-title">@item.Subject</div>
+                    <div class="agenda-meta">
+                        <i class="bi bi-person-badge me-1"></i>@item.ExpertName
+                        @if (item.ClientName != null)
+                        {
+                            <span class="mx-1">·</span><i class="bi bi-person me-1"></i>@item.ClientName
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

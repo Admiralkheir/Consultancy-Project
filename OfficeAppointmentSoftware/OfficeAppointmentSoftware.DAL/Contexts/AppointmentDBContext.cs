@@ -1,16 +1,12 @@
 namespace OfficeAppointmentSoftware.DAL.Contexts
 {
-    using System;
-    using System.Data.Entity;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
+    using Microsoft.EntityFrameworkCore;
     using OfficeAppointmentSoftware.Entities.Entities;
 
     public partial class AppointmentDBContext : DbContext
     {
-        public AppointmentDBContext():base("AppointmentDBContext")
+        public AppointmentDBContext(DbContextOptions<AppointmentDBContext> options) : base(options)
         {
-           
         }
 
         public virtual DbSet<Appointment> Appointment { get; set; }
@@ -23,27 +19,39 @@ namespace OfficeAppointmentSoftware.DAL.Contexts
         public virtual DbSet<Plans> Plans { get; set; }
         public virtual DbSet<Works> Works { get; set; }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Client>()
                 .HasMany(e => e.Appointment)
-                .WithOptional(e => e.Client)
-                .WillCascadeOnDelete();
+                .WithOne(e => e.Client)
+                .HasForeignKey(e => e.ClientID)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Client>()
                 .HasMany(e => e.Contact)
-                .WithOptional(e => e.Client)
-                .WillCascadeOnDelete();
+                .WithOne(e => e.Client)
+                .HasForeignKey(e => e.ClientID)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Company>()
                 .HasMany(e => e.Client)
-                .WithRequired(e => e.Company)
-                .WillCascadeOnDelete(false);
+                .WithOne(e => e.Company)
+                .HasForeignKey(e => e.CompanyID)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Company>()
                 .HasMany(e => e.Expert)
-                .WithRequired(e => e.Company)
-                .WillCascadeOnDelete(false);
+                .WithOne(e => e.Company)
+                .HasForeignKey(e => e.CompanyID)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Company>()
+                .HasMany(e => e.Contact)
+                .WithOne(e => e.Company)
+                .HasForeignKey(e => e.CompanyID)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Contact>()
                 .Property(e => e.PhoneNumber1)
@@ -61,8 +69,15 @@ namespace OfficeAppointmentSoftware.DAL.Contexts
 
             modelBuilder.Entity<Expert>()
                 .HasMany(e => e.Contact)
-                .WithOptional(e => e.Expert)
-                .WillCascadeOnDelete();
+                .WithOne(e => e.Expert)
+                .HasForeignKey(e => e.ExpertID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Expert>()
+                .HasMany(e => e.Appointment)
+                .WithOne(e => e.Expert)
+                .HasForeignKey(e => e.ExpertID)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Plans>()
                 .Property(e => e.Price)
@@ -70,8 +85,10 @@ namespace OfficeAppointmentSoftware.DAL.Contexts
 
             modelBuilder.Entity<Plans>()
                 .HasMany(e => e.Company)
-                .WithRequired(e => e.Plans)
-                .WillCascadeOnDelete(false);
+                .WithOne(e => e.Plans)
+                .HasForeignKey(e => e.PlanID)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Web;
-
-namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Helper
+﻿namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Helper
 {
     public class FileHelper
     {
@@ -14,6 +8,13 @@ namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Helper
             public string FileName { get; set; }
         }
 
+        // Maps an app-relative path such as "~/Areas/Admin/Files/Images/" under wwwroot (the old Server.MapPath).
+        public static string MapPath(string webRootPath, string virtualPath)
+        {
+            var relative = virtualPath.Trim().TrimStart('~').TrimStart('/', '\\');
+            return Path.Combine(webRootPath, relative.Replace('/', Path.DirectorySeparatorChar));
+        }
+
         public static void RemoveAllByPath(string[] fileServerPaths)
         {
             foreach (var item in fileServerPaths)
@@ -21,29 +22,28 @@ namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Helper
                 File.Delete(item);
             }
         }
-        public static void RemoveAll(IEnumerable<FileResultItem> fileResultItem, string fileServerPath)
+        public static void RemoveAll(IEnumerable<FileResultItem> fileResultItem, string fileServerPath, string webRootPath)
         {
             foreach (var item in fileResultItem)
             {
-                if (item.UploadPath != "")
+                if (!string.IsNullOrEmpty(item.UploadPath))
                 {
-                    var physicalLocation = fileServerPath + item.UploadPath;
-                    string path = HttpContext.Current.Server.MapPath(physicalLocation);
+                    string path = Path.Combine(MapPath(webRootPath, fileServerPath), Path.GetFileName(item.UploadPath));
                     File.Delete(path);
                 }
             }
         }
 
-        public static Dictionary<FileResultItem, FileResultType> FileDocumentUpload(IEnumerable<HttpPostedFileBase> postedFiles, int maxSize, string filePath, string[] documentTypes, params string[] fieldParameters)
+        public static Dictionary<FileResultItem, FileResultType> FileDocumentUpload(IEnumerable<IFormFile> postedFiles, int maxSize, string filePath, string webRootPath, string[] documentTypes, params string[] fieldParameters)
         {
             Dictionary<FileResultItem, FileResultType> dictionaryResult = new Dictionary<FileResultItem, FileResultType>();
 
-            if (postedFiles.FirstOrDefault() != null)
+            if (postedFiles != null && postedFiles.FirstOrDefault() != null)
             {
                 foreach (var item in postedFiles)
                 {
                     string contentType = item.ContentType;
-                    int contentSize = item.ContentLength;
+                    long contentSize = item.Length;
                     string fileName = Path.GetFileName(item.FileName);
 
                     if (contentSize <= maxSize)
@@ -56,11 +56,16 @@ namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Helper
                                 fieldNames += fieldParameters[i];
                             }
                             var uploadPath = fieldNames + Guid.NewGuid().ToString().Replace("-", "") + fileName;
-                            var physicalPath = Path.Combine(HttpContext.Current.Server.MapPath(filePath) + uploadPath);
+                            var directory = MapPath(webRootPath, filePath);
+                            var physicalPath = Path.Combine(directory, uploadPath);
 
                             try
                             {
-                                item.SaveAs(physicalPath);
+                                Directory.CreateDirectory(directory);
+                                using (var stream = File.Create(physicalPath))
+                                {
+                                    item.CopyTo(stream);
+                                }
                                 dictionaryResult.Add(new FileResultItem() { UploadPath = uploadPath, FileName = item.FileName }, FileResultType.Complete);
                                 continue;
                             }

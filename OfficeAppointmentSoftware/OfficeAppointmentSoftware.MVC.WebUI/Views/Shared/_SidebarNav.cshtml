@@ -1,0 +1,33 @@
+@{
+    var action = ViewContext.RouteData.Values["action"] as string ?? "";
+    bool Active(params string[] actions) => actions.Any(a => string.Equals(a, action, StringComparison.OrdinalIgnoreCase));
+    string Css(params string[] actions) => Active(actions) ? "active" : null;
+}
+@if (User.IsInRole("Admin"))
+{
+    <div class="app-nav-section">Yönetim</div>
+    <ul class="app-nav">
+        <li><a class="@Css("Index", "SignUp")" asp-area="Admin" asp-controller="Admin" asp-action="Index"><i class="bi bi-buildings"></i> Ofisler</a></li>
+        <li><a class="@Css("Plans", "PlanEdit")" asp-area="Admin" asp-controller="Admin" asp-action="Plans"><i class="bi bi-tags"></i> Paketler</a></li>
+    </ul>
+    <div class="app-nav-section">Web Sitesi</div>
+    <ul class="app-nav">
+        <li><a class="@Css("Banner")" asp-area="Admin" asp-controller="Admin" asp-action="Banner"><i class="bi bi-window"></i> Karşılama Alanı</a></li>
+        <li><a class="@Css("FeaturesList", "FeaturesAdd", "FeaturesUpdate")" asp-area="Admin" asp-controller="Admin" asp-action="FeaturesList"><i class="bi bi-stars"></i> Hizmetler</a></li>
+        <li><a class="@Css("WorksList", "WorksAdd", "WorksUpdate")" asp-area="Admin" asp-controller="Admin" asp-action="WorksList"><i class="bi bi-images"></i> Çalışmalar</a></li>
+        <li><a asp-area="" asp-controller="Home" asp-action="Index" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Siteyi Görüntüle</a></li>
+    </ul>
+}
+else
+{
+    <div class="app-nav-section">Genel</div>
+    <ul class="app-nav">
+        <li><a class="@Css("Index")" asp-area="Ofiice" asp-controller="HomeOffice" asp-action="Index"><i class="bi bi-grid-1x2"></i> Genel Bakış</a></li>
+        <li><a class="@Css("AppointmentOpss")" asp-area="Ofiice" asp-controller="HomeOffice" asp-action="AppointmentOpss"><i class="bi bi-calendar3"></i> Randevu Takvimi</a></li>
+    </ul>
+    <div class="app-nav-section">Kayıtlar</div>
+    <ul class="app-nav">
+        <li><a class="@Css("ListClientInfos", "ClientAdd", "ClientUpdate", "ClientDetail")" asp-area="Ofiice" asp-controller="HomeOffice" asp-action="ListClientInfos"><i class="bi bi-people"></i> Danışanlar</a></li>
+        <li><a class="@Css("ListExpertInfos", "ExpertAdd", "ExpertUpdate", "ExpertDetail")" asp-area="Ofiice" asp-controller="HomeOffice" asp-action="ListExpertInfos"><i class="bi bi-person-badge"></i> Uzmanlar</a></li>
+    </ul>
+}

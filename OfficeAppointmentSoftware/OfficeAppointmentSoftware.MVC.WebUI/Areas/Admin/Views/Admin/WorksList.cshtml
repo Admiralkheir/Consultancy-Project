@@ -1,104 +1,41 @@
-﻿@model IEnumerable<Works>
+﻿@model List<Works>
 @{
-    ViewBag.Title = "WorksList";
-    Layout = "~/Areas/Admin/Views/Shared/_ AdminLayout.cshtml";
+    ViewData["Title"] = "Çalışmalar";
 }
 
-<h2 class="mt-5">WorksList</h2>
-
-<div class="raw mt-5">
-
-</div>
-<div class="raw mt-3">
-
-</div>
-<div class="raw">
-
-</div>
-<div class="raw">
-
-</div>
-
-
-<div class="container">
-    <div class="table-responsive-vertical">
-        <table class="table table-bordered table-striped table-hover table-mc-light-blue">
-            <thead>
-                <tr>
-                    <th>Açıklama</th>
-                    <th>Başlık</th>
-                    @*<th>Başlık</th>*@
-                    <th>Resim Yolu</th>
-                    <th>Sil / Güncelle</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td  data-title="Açıklama">@item.Description</td>
-                        <td  data-title="Başlık">@item.Title</td>
-                        <td data-title="Resim Yolu">@item.PhotoURL</td>
-                        <td data-title="Sil / Güncelle">@Html.ActionLink("Sil", "WorksDelete", new { id = item.WorksID }, new { @class = "btn btn-danger" }) &nbsp; @Html.ActionLink("Güncelle", "WorksUpdate", new { id = item.WorksID }, new { @class = "btn btn-warning " })</td>
-                    </tr>
-                }
-                @*<tr>
-            <td data-title="No">1</td>
-            <td data-title="Açıklama">Kral</td>
-            <td data-title="Başlık">Adam Kral</td>
-            <td data-title="Resim Yolu">gjhmabj</td>
-            <td data-title="Sil / Güncelle">fffff</td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>
-        <tr>
-            <td data-title="No"></td>
-            <td data-title="Açıklama"></td>
-            <td data-title="Başlık"></td>
-            <td data-title="Resim Yolu"></td>
-            <td data-title="Sil / Güncelle"></td>
-        </tr>*@
-            </tbody>
-        </table>
+<div class="page-header">
+    <div>
+        <h1>Çalışmalar</h1>
+        <p class="lead-text">Ana sayfadaki "Son çalışmalarımız" bölümünde görselleriyle listelenir.</p>
     </div>
+    <a class="btn btn-primary btn-icon" asp-action="WorksAdd"><i class="bi bi-plus-lg"></i> Yeni Çalışma</a>
 </div>
 
-
-@*<table class="table">
-    <tr>
-        <th>Açıklama</th>
-        <th>Başlık</th>
-        <th>Resim Yolu</th>
-        <th>Sil / Güncelle</th>
-    </tr>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Description</td>
-            <td>@item.Title</td>
-            <td>@item.PhotoURL</td>
-            <td>@Html.ActionLink("Sil", "WorksDelete", new { id = item.WorksID }, new { @class = "btn btn-danger " }) &nbsp; @Html.ActionLink("Güncelle", "WorksUpdate", new { id = item.WorksID }, new { @class = "btn btn-warning  " })</td>
-        </tr>
-    }
-
-</table>*@
+@if (!Model.Any())
+{
+    <div class="card"><div class="empty-state"><i class="bi bi-images"></i>Henüz çalışma eklenmemiş; ana sayfada bu bölüm gizlenir.</div></div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 work-card">
+                    <img src="~/Areas/Admin/Files/Images/@item.PhotoURL" class="w-100" alt="@item.Title" loading="lazy" />
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h6 fw-bold">@item.Title</h2>
+                        <p class="text-body-secondary small flex-grow-1">@item.Description</p>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-light flex-fill" asp-action="WorksUpdate" asp-route-id="@item.WorksID"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+                            <form asp-action="WorksDelete" asp-route-id="@item.WorksID" method="post"
+                                  data-confirm="&quot;@item.Title&quot; ve görseli kaldırılacak." data-confirm-title="Çalışma silinsin mi?">
+                                <button type="submit" class="btn btn-sm btn-light text-danger" title="Sil"><i class="bi bi-trash"></i><span class="visually-hidden">Sil</span></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

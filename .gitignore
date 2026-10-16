@@ -1,0 +1,20 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+*.nupkg
+
+# IDE / user state
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.vspscc
+
+# Legacy NuGet packages folder (packages.config era)
+packages/
+
+# Local secrets / overrides
+appsettings.*.local.json
+.env

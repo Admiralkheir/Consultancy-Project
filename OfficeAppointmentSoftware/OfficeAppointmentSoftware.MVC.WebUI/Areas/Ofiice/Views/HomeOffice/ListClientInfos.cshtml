@@ -1,116 +1,84 @@
-﻿@model IEnumerable<OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Models.ClientInfosDTO>
-
+﻿@model IEnumerable<ClientInfosDTO>
 @{
-    ViewBag.Title = "ListClientInfos";
+    ViewData["Title"] = "Danışanlar";
+    var activeCount = Model.Count(x => x.DevamDurumu);
 }
 
-<div class="row">
-    <i class="fas fa-list-ul fa-2x col-md-1"></i>
-    <h3 style="color:#4e73df" class="col-md-3"> Danışan Listesi </h3>
-
-
-    <div class="col-md-5"></div>
-    <div class="md-form mt-0 col-md-3">
-        <input class="form-control" id="searchInput" onkeyup="myFunction()" type="text" placeholder="Search" aria-label="Search">
-
+<div class="page-header">
+    <div>
+        <h1>Danışanlar</h1>
+        <p class="lead-text">@activeCount aktif, @(Model.Count() - activeCount) pasif danışan</p>
     </div>
-
+    <a class="btn btn-primary btn-icon" asp-action="ClientAdd"><i class="bi bi-person-plus"></i> Yeni Danışan</a>
 </div>
 
-<hr />
-
-<div class="row">
-    <div class="col col-md-10">
-    </div>
-    <div class="col-md-2">
-        <a href="@Url.Action("ClientAdd","HomeOffice")"><button type="button" class="btn btn-success" onclick="window.location.href='ClientAdd.cshtml'" value="~/Areas/Ofiice/Views/HomeOffice/ClientAdd.cshtml" style="float:left; width:150px"><i class="fas fa-plus"></i> Yeni Danışan</button></a>
-
-    </div>
-</div>
-<br />
-<table id="myTable" class="datatable table table-striped">
-    <tr>
-        <th>
-            @Html.Label("Danışan Türü")
-        </th>
-        <th>
-            @Html.Label("TC Kimlik No")
-        </th>
-        <th>
-            @Html.Label("Ad Soyad")
-        </th>
-        @*<th>
-                @Html.Label("Soyad")
-            </th>*@
-        <th>
-            @Html.Label("Telefon Numarası")
-        </th>
-        <th>
-            @Html.Label("Adres")
-        </th>
-        <th>
-            @Html.Label("Devam Durumu")
-        </th>
-        <th>
-            @Html.Label(" İşlemler")
-        </th>
-    </tr>
-
-    @foreach (var item in Model)
+<div class="card">
+    @if (!Model.Any())
     {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DanisanTuru)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TCKimlik)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AdSoyad)
-            </td>
-            @*<td>
-                    @Html.DisplayFor(modelItem => item.Soyad)
-                </td>*@
-            <td>
-                @Html.DisplayFor(modelItem => item.Telno)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Adres)
-            </td>
-            <td>
-                @Html.Label(item.DevamDurumu == true ? "Aktif" : "Aktif Değil")
-            </td>
-            <td>
-                @Html.ActionLink("Güncelle", "ClientUpdate", "HomeOffice", new { id = item.ID }, new { @class = "btn btn-warning glyphicon glyphicon-user" })
-
-                @Html.ActionLink("Sil", "ClientDelete", "HomeOffice", new { id = item.ID }, new { @class = "btn btn-danger glyphicon glyphicon-remove", onclick = "return confirm('Bu danışanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.');" })
-            </td>
-        </tr>
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p class="mb-3">Henüz danışan kaydı yok.</p>
+            <a class="btn btn-primary btn-icon" asp-action="ClientAdd"><i class="bi bi-person-plus"></i> İlk danışanı ekle</a>
+        </div>
     }
-
-</table>
-<script>
-    function myFunction() {
-        // Declare variables
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("searchInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-
-            td = tr[i].getElementsByTagName("td")[2];
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-
-        }
+    else
+    {
+        <div class="card-header">
+            <div class="search-input w-100" style="max-width:340px">
+                <i class="bi bi-search"></i>
+                <input type="search" class="form-control" placeholder="Ad, TC kimlik, telefon ara…" data-table-search="#clientTable" aria-label="Danışan ara" />
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover" id="clientTable">
+                <thead>
+                    <tr>
+                        <th>Danışan</th>
+                        <th>Grup</th>
+                        <th class="d-none d-md-table-cell">TC Kimlik No</th>
+                        <th>Telefon</th>
+                        <th>Durum</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="avatar" style="background:@UiHelper.AvatarColor(item.AdSoyad)">@UiHelper.Initials(item.AdSoyad)</span>
+                                    <div>
+                                        <a class="row-link" asp-action="ClientDetail" asp-route-id="@item.ID">@item.AdSoyad</a>
+                                        <div class="small text-body-secondary">@item.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-nowrap">@item.DanisanTuru</span> <span class="small text-body-secondary">(@item.Yas)</span></td>
+                            <td class="d-none d-md-table-cell font-monospace small">@item.TCKimlik</td>
+                            <td class="text-nowrap"><a class="text-decoration-none" href="tel:@item.Telno">@item.Telno</a></td>
+                            <td>
+                                @if (item.DevamDurumu)
+                                {
+                                    <span class="badge rounded-pill text-bg-success bg-opacity-75">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill text-bg-secondary">Pasif</span>
+                                }
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-sm btn-light" asp-action="ClientUpdate" asp-route-id="@item.ID" title="Düzenle"><i class="bi bi-pencil"></i><span class="visually-hidden">Düzenle</span></a>
+                                <form asp-action="ClientDelete" asp-route-id="@item.ID" method="post" class="d-inline"
+                                      data-confirm="@item.AdSoyad ve tüm randevuları kalıcı olarak silinecek. Bu işlem geri alınamaz." data-confirm-title="Danışan silinsin mi?">
+                                    <button type="submit" class="btn btn-sm btn-light text-danger" title="Sil"><i class="bi bi-trash"></i><span class="visually-hidden">Sil</span></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div id="noResults" class="empty-state d-none"><i class="bi bi-search"></i>Aramanızla eşleşen danışan yok.</div>
+        </div>
     }
-</script>
+</div>

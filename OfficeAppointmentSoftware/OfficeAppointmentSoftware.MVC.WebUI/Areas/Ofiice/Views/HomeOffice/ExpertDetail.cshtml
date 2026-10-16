@@ -1,0 +1,72 @@
+@model ExpertDetailVM
+@{
+    var fullName = Model.Expert.Name + " " + Model.Expert.Surname;
+    ViewData["Title"] = fullName;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="ListExpertInfos">Uzmanlar</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@fullName</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        @if (!string.IsNullOrEmpty(Model.Expert.PhotoURL))
+        {
+            <img class="avatar avatar-lg" src="~/Areas/Ofiice/image/@Model.Expert.PhotoURL" alt="" />
+        }
+        else
+        {
+            <span class="avatar avatar-lg" style="background:@UiHelper.AvatarColor(fullName)">@UiHelper.Initials(fullName)</span>
+        }
+        <div>
+            <h1>@fullName</h1>
+            <p class="lead-text">@Model.Expert.Profession · Toplam @Model.TotalAppointments randevu</p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary btn-icon" asp-action="ExpertUpdate" asp-route-id="@Model.Expert.ExpertID"><i class="bi bi-pencil"></i> Düzenle</a>
+        <form asp-action="ExpertDelete" asp-route-id="@Model.Expert.ExpertID" method="post"
+              data-confirm="@fullName kalıcı olarak silinecek. Randevusu olan uzmanlar silinemez." data-confirm-title="Uzman silinsin mi?">
+            <button type="submit" class="btn btn-outline-danger btn-icon"><i class="bi bi-trash"></i> Sil</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header"><span><i class="bi bi-person-vcard me-2 text-primary"></i>Bilgiler</span></div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>Uzmanlık</dt><dd>@Model.Expert.Profession</dd>
+                    <dt>Doğum tarihi</dt><dd>@UiHelper.Date(Model.Expert.BirthDate)</dd>
+                    <dt>Telefon</dt><dd>@(Model.Contact?.PhoneNumber1?.Trim() ?? "—")@if (!string.IsNullOrWhiteSpace(Model.Contact?.PhoneNumber2)) {<br />@Model.Contact.PhoneNumber2.Trim()}</dd>
+                    <dt>E-posta</dt><dd>@if (Model.Contact?.Email != null) {<a href="mailto:@Model.Contact.Email">@Model.Contact.Email</a>} else {<span>—</span>}</dd>
+                    <dt>Adres</dt><dd>@(Model.Contact?.Address ?? "—")</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><span><i class="bi bi-cash-stack me-2 text-primary"></i>Fiyat politikası ve notlar</span></div>
+            <div class="card-body">
+                <p style="white-space:pre-line">@Model.Expert.WagePolicy</p>
+                <div class="form-section-title mb-1">Not</div>
+                <p class="mb-0 text-body-secondary" style="white-space:pre-line">@(string.IsNullOrWhiteSpace(Model.Expert.Note) ? "—" : Model.Expert.Note)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="bi bi-calendar3 me-2 text-primary"></i>Yaklaşan randevular</span>
+                <a class="small text-decoration-none" asp-action="AppointmentOpss" asp-route-expertId="@Model.Expert.ExpertID">Takvimde gör <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="card-body pt-0">
+                <partial name="_AgendaList" model="Model.UpcomingAppointments" view-data='new ViewDataDictionary(ViewData) { ["ShowDate"] = true, ["EmptyText"] = "Yaklaşan randevu yok." }' />
+            </div>
+        </div>
+    </div>
+</div>

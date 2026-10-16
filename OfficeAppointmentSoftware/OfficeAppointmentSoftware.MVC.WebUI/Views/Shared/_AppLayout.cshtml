@@ -1,0 +1,115 @@
+@using OfficeAppointmentSoftware.BLL.Abstracts.AdminServices
+@using OfficeAppointmentSoftware.MVC.WebUI.Models.IdentityModels
+@inject ICompanyService CompanyService
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var isAdmin = User.IsInRole("Admin");
+    var companyId = User.GetCompanyId();
+    var company = companyId.HasValue ? CompanyService.GetCompany(companyId.Value) : null;
+    var userName = User.Identity?.Name ?? "";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <partial name="_Head" />
+    @* Token for fetch() calls (calendar); forms get theirs from the form tag helper. *@
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menü">
+            <div class="offcanvas-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <a class="app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="brand-mark"><i class="bi bi-calendar2-heart"></i></span> CETRIS
+                    </a>
+                    <button type="button" class="btn-close btn-close-white d-lg-none me-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Menüyü kapat"></button>
+                </div>
+                <nav>
+                    <partial name="_SidebarNav" />
+                </nav>
+                <div class="app-sidebar-footer">© @DateTime.Now.Year CETRIS</div>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <button class="icon-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Menüyü aç">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="company">
+                    @if (company != null)
+                    {
+                        @if (!string.IsNullOrEmpty(company.LogoURL))
+                        {
+                            <img src="~/Areas/Admin/Files/Images/@company.LogoURL" alt="" />
+                        }
+                        else
+                        {
+                            <span class="avatar avatar-sm" style="background:@UiHelper.AvatarColor(company.CompanyName)">@UiHelper.Initials(company.CompanyName)</span>
+                        }
+                        <span class="company-name">@company.CompanyName</span>
+                    }
+                    else if (isAdmin)
+                    {
+                        <span class="badge rounded-pill text-bg-dark"><i class="bi bi-shield-lock me-1"></i>Yönetici Paneli</span>
+                    }
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <button class="icon-btn" type="button" data-theme-toggle title="Açık / koyu tema" aria-label="Temayı değiştir">
+                        <i class="bi bi-moon-stars" data-theme-icon></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn d-flex align-items-center gap-2 px-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar avatar-sm" style="background:@UiHelper.AvatarColor(userName)">@UiHelper.Initials(userName)</span>
+                            <span class="d-none d-sm-inline fw-medium">@userName</span>
+                            <i class="bi bi-chevron-down small text-body-secondary"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li><h6 class="dropdown-header">@(isAdmin ? "Yönetici" : "Ofis kullanıcısı")</h6></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-2"></i>Ana sayfa</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Çıkış yap</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="app-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-4">
+                    <div class="d-flex gap-3">
+                        <span class="stat-icon tone-rose"><i class="bi bi-exclamation-triangle"></i></span>
+                        <div>
+                            <h5 class="mb-1" id="confirmModalTitle" data-confirm-title>Emin misiniz?</h5>
+                            <p class="text-body-secondary mb-0" data-confirm-text></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="button" class="btn btn-danger" data-confirm-ok>Evet, sil</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <partial name="_StatusMessages" />
+
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,20 +1,15 @@
 ﻿using OfficeAppointmentSoftware.BLL.Abstracts.AdminServices;
-using OfficeAppointmentSoftware.DAL.Repositories.Concretes.AdminRepositories;
+using OfficeAppointmentSoftware.DAL.Repositories.Abstracts.AdminRepositories;
 using OfficeAppointmentSoftware.Entities.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OfficeAppointmentSoftware.BLL.Concrete.AdminServices
 {
-    public class CompanyService : CompanyRepository , ICompanyService
+    public class CompanyService : ICompanyService
     {
-        CompanyRepository _companyRepository;
-        public CompanyService()
+        private readonly ICompanyRepository _companyRepository;
+        public CompanyService(ICompanyRepository companyRepository)
         {
-            _companyRepository = new CompanyRepository();
+            _companyRepository = companyRepository;
         }
         public void AddCompany(Company company)
         {
@@ -24,6 +19,11 @@ namespace OfficeAppointmentSoftware.BLL.Concrete.AdminServices
         public void DeleteCompany(int id)
         {
             _companyRepository.Delete(id);
+        }
+
+        public Company GetCompany(int id)
+        {
+            return _companyRepository.FindById(id);
         }
 
         public void UpdateCompany(Company company)

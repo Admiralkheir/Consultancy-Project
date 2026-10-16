@@ -4,7 +4,6 @@ namespace OfficeAppointmentSoftware.Entities.Entities
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("Client")]
     public partial class Client
@@ -22,24 +21,33 @@ namespace OfficeAppointmentSoftware.Entities.Entities
 
         [Required]
         [StringLength(15)]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "TC Kimlik No 11 haneli bir sayı olmalıdır.")]
+        [Display(Name = "TC Kimlik No")]
         public string TcKimlik { get; set; }
+
         [Required]
         [StringLength(50)]
+        [Display(Name = "Ad")]
         public string Name { get; set; }
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Soyad")]
         public string Surname { get; set; }
 
+        [Display(Name = "Doğum Tarihi")]
         public DateTime BirthDate { get; set; }
 
         [Required]
         [StringLength(450)]
+        [Display(Name = "Problem")]
         public string Problem { get; set; }
 
         [StringLength(450)]
+        [Display(Name = "Not")]
         public string Note { get; set; }
 
+        [Display(Name = "Devam ediyor")]
         public bool Continuity { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -4,7 +4,6 @@ namespace OfficeAppointmentSoftware.Entities.Entities
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("Company")]
     public partial class Company
@@ -26,13 +25,16 @@ namespace OfficeAppointmentSoftware.Entities.Entities
 
         [Required]
         [StringLength(200)]
+        [Display(Name = "Ofis Adı")]
         public string CompanyName { get; set; }
 
         [Required]
         [StringLength(150)]
+        [Display(Name = "Yetkili Kişi")]
         public string OwnerName { get; set; }
 
         [StringLength(450)]
+        [Display(Name = "Açıklama")]
         public string Description { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

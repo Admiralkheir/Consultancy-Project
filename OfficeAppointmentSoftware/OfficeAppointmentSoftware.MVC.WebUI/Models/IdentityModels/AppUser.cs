@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace OfficeAppointmentSoftware.MVC.WebUI.Models.IdentityModels
 {

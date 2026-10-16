@@ -3,10 +3,48 @@ Internal management of offices that host psychological counseling centers or exp
 is a web project developed for the execution of the appointment system in digital environment.
 The head of the central management unit keeps the records of experts and clients working in the
 management on the web side. Consultancy centers with login operations management
-facilities are available. The admin panel is available.To connect to a database, Entity Framework-CodeFirst is used. To create the appointment calendar , a readonly calendar interface which is fullcalendar.io with using JavaScript.
+facilities are available. The admin panel is available. Entity Framework Core (Code First) is used for data access, and the appointment calendar is built with FullCalendar (create, edit, drag & drop, per-expert filter, conflict check).
 
-C#, Visual Studio, MSSQL Server, Entity Framework Code First, TFS,
-Javascript/JQuery, HTML, Boostrap/CSS, Authentication, Authorization, LINQ, Agile, JSON, ASP.NET Identity
+C#, ASP.NET Core MVC (.NET 10), MSSQL Server, Entity Framework Core Code First, ASP.NET Core Identity, LINQ,
+Bootstrap 5.3 + Bootstrap Icons, FullCalendar 6 (vendored under `wwwroot/lib`), light/dark theme.
+
+## Running
+
+### With Docker (recommended)
+
+```bash
+cd OfficeAppointmentSoftware
+docker compose up --build
+```
+
+Open http://localhost:8080 and sign in with `admin` / `Admin123!` (set `ADMIN_PASSWORD` to change it).
+The admin creates offices from **Kullanıcı İşlemleri** (sign-up); each office then signs in with its own user.
+SQL Server is exposed on `localhost,14333` (`sa` / `MSSQL_SA_PASSWORD`, default `Local_Dev_Passw0rd`).
+Migrations are applied and the roles are seeded on startup.
+
+### Locally
+
+Requires the .NET 10 SDK and a SQL Server instance.
+
+```bash
+cd OfficeAppointmentSoftware/OfficeAppointmentSoftware.MVC.WebUI
+dotnet user-secrets set "ConnectionStrings:AppointmentDBContext" "Server=localhost,1433;Database=AppointmentDB;User Id=sa;Password=<password>;TrustServerCertificate=True"
+dotnet user-secrets set "Seed:AdminPassword" "<admin password>"
+dotnet run
+```
+
+The contact form sends mail only when the `Smtp` section is configured (keep `Smtp:Password` in user secrets or environment variables).
+
+### Migrations
+
+There are two contexts in the same database: `AppointmentDBContext` (DAL) and `IdentityContext` (WebUI).
+
+```bash
+cd OfficeAppointmentSoftware
+dotnet tool restore
+dotnet ef migrations add <Name> -p OfficeAppointmentSoftware.DAL -s OfficeAppointmentSoftware.MVC.WebUI -c AppointmentDBContext -o Migrations
+dotnet ef migrations add <Name> -p OfficeAppointmentSoftware.MVC.WebUI -s OfficeAppointmentSoftware.MVC.WebUI -c IdentityContext -o Migrations
+```
 
 ![58515935-139fa400-81af-11e9-86d2-d3d33f16fd41](https://user-images.githubusercontent.com/48483419/58797910-dd787f00-8609-11e9-8a9e-40346dcdbeb5.jpg)
 ![58515934-139fa400-81af-11e9-9b0f-a4d5b3e51dfd](https://user-images.githubusercontent.com/48483419/58797915-dfdad900-8609-11e9-8ff6-4dfab54e8856.jpg)

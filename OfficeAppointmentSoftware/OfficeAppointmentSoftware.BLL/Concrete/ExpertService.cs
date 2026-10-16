@@ -1,21 +1,16 @@
 ﻿using OfficeAppointmentSoftware.BLL.Abstracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OfficeAppointmentSoftware.DAL.Repositories.Abstracts;
 using OfficeAppointmentSoftware.Entities.Entities;
 using System.Linq.Expressions;
-using OfficeAppointmentSoftware.DAL.Repositories.Concretes;
 
 namespace OfficeAppointmentSoftware.BLL.Concrete
 {
-    public class ExpertService : ExpertRepository,IExpertService
+    public class ExpertService : IExpertService
     {
-        ExpertRepository _expertRepository;
-        public ExpertService()
+        private readonly IExpertRepository _expertRepository;
+        public ExpertService(IExpertRepository expertRepository)
         {
-            _expertRepository = new ExpertRepository();
+            _expertRepository = expertRepository;
         }
         public void AddExpert(Expert expert)
         {
@@ -39,7 +34,6 @@ namespace OfficeAppointmentSoftware.BLL.Concrete
 
         public IEnumerable<Expert> SelectExpert(Expression<Func<Expert, bool>> lambda = null)
         {
-    
            return _expertRepository.Select(lambda);
         }
 

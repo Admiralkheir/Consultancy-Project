@@ -1,16 +1,11 @@
 ﻿using OfficeAppointmentSoftware.Entities.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
 
 namespace OfficeAppointmentSoftware.MVC.WebUI.Areas.Ofiice.Models
 {
+    // Add/edit form for an expert and its active contact details.
     public class ExpertVM
     {
-        [AllowHtml]
-        public Expert Expert { get; set; }
-        public Contact Contact { get; set; }
+        public Expert Expert { get; set; } = new Expert();
+        public Contact Contact { get; set; } = new Contact();
     }
 }

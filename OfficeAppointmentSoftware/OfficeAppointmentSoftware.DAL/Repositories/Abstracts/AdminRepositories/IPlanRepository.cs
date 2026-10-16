@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OfficeAppointmentSoftware.DAL.Repositories.Abstracts.AdminRepositories
 {
-    interface IPlanRepository :IBaseRepository<Plans,short>
+    public interface IPlanRepository : IBaseRepository<Plans,short>
     {
     }
 }

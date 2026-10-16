@@ -1,118 +1,58 @@
-﻿
-@{
-    Layout = null;
-}
-
-<!DOCTYPE html>
-
-<html>
+﻿<!DOCTYPE html>
+<html lang="tr">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    @*<title>Baker Bootstrap Theme</title>*@
-    <meta name="description" content="Free Bootstrap Theme by BootstrapMade.com">
-    <meta name="keywords" content="free website templates, free bootstrap themes, free template, free bootstrap, free website template">
-
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:400,300|Raleway:300,400,900,700italic,700,300,600">
-    @*<link href="~/Content/PricingList.css" rel="stylesheet"/>*@
-    <link rel="stylesheet" type="text/css" href="~/Content/css/jquery.bxslider.css">
-    <link rel="stylesheet" type="text/css" href="~/Content/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="~/Content/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="~/Content/css/animate.css">
-    <link href="~/Content/css/PricingList.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="~/Content/css/style.css">
-
-    @*<link href="~/Content2/css/bootstrap.min.css" rel="stylesheet" />"">*@
-    <link href="~/Content2/css/mdb.min.css" rel="stylesheet" />
-    <!-- =======================================================
-      Theme Name: Baker
-      Theme URL: https://bootstrapmade.com/baker-free-onepage-bootstrap-theme/
-      Author: BootstrapMade.com
-      Author URL: https://bootstrapmade.com
-    ======================================================= -->
-    @*<title>_Layout</title>*@
+    <partial name="_Head" />
+    <meta name="description" content="CETRIS: danışmanlık merkezleri için danışan, uzman ve randevu yönetimi." />
 </head>
-<body>
-    <div class="header">
-        <div class="bg-color">
-            <header id="main-header">
-                <nav class="navbar navbar-default navbar-fixed-top">
-                    <div class="container">
-                        <div class="navbar-header">
-                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                            <a class="navbar-brand" href="#">CET<span class="logo-dec">RİS</span></a>
-                        </div>
-                        <div class="collapse navbar-collapse" id="myNavbar">
-                            <ul class="nav navbar-nav navbar-right">
-                                <li class="active"><a href="#main-header">ANA SAYFA</a></li>
-                                <li class=""><a href="#feature">HAKKIMIZDA</a></li>
-                                <li class=""><a href="#service">ÖZELLİKLER</a></li>
-                                <li class=""><a href="#portfolio">MÜŞTERİLER</a></li>
-                                <li class=""><a href="#pricing-list">FİYATLAR</a></li>
-                                <li class=""><a href="#testimonial">TAKIM</a></li>
-                                <li class=""><a href="#contact">İLETİŞİM</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-            </header>
-            <div class="wrapper">
-                <div class="container">
-                    <div class="row">
-                        <div class="banner-info text-center wow fadeIn delay-05s">
-                            @*<h1 class="bnr-title">We are at ba<span>ker</span></h1>*@
-                            <h2 class="bnr-sub-title">@TempData["BannerTitle"]</h2>
-                            <p class="bnr-para">@TempData["BannerD"]</p>
-                                <a href="/Account/Login" class="btn btn-more active">Giriş Yap</a>
-                                <a href="#contact" class="btn btn-more active">Bize Ulaşın</a>
-                            </div>
-                            <div class="overlay-detail">
-                                <a href="#feature"><i class="fa fa-angle-down"></i></a>
-                            </div>
-                        </div>
-                    </div>
+<body class="landing" data-bs-spy="scroll" data-bs-target="#landingNav" data-bs-offset="80">
+    <nav class="navbar navbar-expand-lg fixed-top landing-nav py-3" id="landingNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#top">
+                <span class="brand-mark"><i class="bi bi-calendar2-heart"></i></span> CETRIS
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#landingMenu" aria-controls="landingMenu" aria-expanded="false" aria-label="Menüyü aç">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="landingMenu">
+                <ul class="navbar-nav mx-auto gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="#about">Hakkımızda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Hizmetler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#works">Çalışmalar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Paketler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonials">Yorumlar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">İletişim</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                    <button class="icon-btn" type="button" data-theme-toggle aria-label="Temayı değiştir"><i class="bi bi-moon-stars" data-theme-icon></i></button>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="btn btn-primary btn-icon" asp-controller="Account" asp-action="Login"><i class="bi bi-speedometer2"></i> Panele Git</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary btn-icon" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right"></i> Giriş Yap</a>
+                    }
                 </div>
             </div>
         </div>
-    <div>
+    </nav>
+
+    <main id="top">
         @RenderBody()
-    </div>
-    <footer id="footer">
-        <div class="container">
-            <div class="row text-center">
-                <p> CETRİS. Tüm Hakları Saklıdır. 2019&copy;</p>
-                <div class="credits">
-                    <!--
-                      All the links in the footer should remain intact.
-                      You can delete the links only if you purchased the pro version.
-                      Licensing information: https://bootstrapmade.com/license/
-                      Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Baker
-                    -->
-                     <a href="https://bootstrapmade.com/">Grup Fişek </a> Tarafından tasarlanmıştır.<br /><br />
-                    <div class="social-links">
-                        <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
-                        <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
-                        <a href="#" class="google-plus"><i class="fa fa-google-plus"></i></a>
-                        <a href="#" class="pinterest"><i class="fa fa-pinterest"></i></a>
-                    </div>
-                </div>
+    </main>
+
+    <footer class="landing-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 text-white fw-semibold">
+                <span class="brand-mark" style="width:28px;height:28px;font-size:.9rem"><i class="bi bi-calendar2-heart"></i></span> CETRIS
             </div>
+            <div class="small">© @DateTime.Now.Year CETRIS · Tüm hakları saklıdır.</div>
+            <div class="small"><a href="#contact">Bize ulaşın</a></div>
         </div>
     </footer>
-    <!---->
-    <script src="~/Content/js/jquery.min.js"></script>
-    <script src="~/Content/js/jquery.easing.min.js"></script>
-    <script src="~/Content/js/bootstrap.min.js"></script>
-    <script src="~/Content/js/wow.js"></script>
-    <script src="~/Content/js/jquery.bxslider.min.js"></script>
-    <script src="~/Content/js/custom.js"></script>
-    @*<script src="~/Content/contactform/contactform.js"></script>*@
-    <script src="~/Scripts/jquery.validate.min.js"></script>
-    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
